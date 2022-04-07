@@ -1,0 +1,4 @@
+FROM alpine
+WORKDIR /
+COPY echo-env.sh .
+CMD ["/echo-env.sh"]
