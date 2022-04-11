@@ -41,6 +41,12 @@ documented; clients and testing will have to do this regardless.
    default to `default`.
 2. run the generation script: `./gen-cert.sh $APPNAME $NAMESPACE`
 
+# AdmissionWebhookRegistration object
+
+```
+./submit-webhook-config.sh $APPNAME $NAMESPACE
+```
+
 # notes
 
 process:
