@@ -20,9 +20,8 @@ func main() {
 		runtimeScheme = runtime.NewScheme()
 		codecs        = serializer.NewCodecFactory(runtimeScheme)
 		deserializer  = codecs.UniversalDeserializer()
-		ar            = new(admissionv1.AdmissionReview)
 	)
-	s := &server{
+	ss := &server{
 		d: deserializer,
 		l: log.Default(),
 		c: map[string]agentConfig{
@@ -36,7 +35,12 @@ func main() {
 			},
 		},
 	}
-	_ = s.mutate(ar)
+	s := &http.Server{
+		Addr:    ":8443",
+		Handler: ss,
+	}
+	log.Println("listening on :8443")
+	log.Fatal(s.ListenAndServeTLS("/webhook.pem", "/webhook.key"))
 }
 
 type server struct {
@@ -145,7 +149,7 @@ func (s *server) createPatch(pod corev1.Pod) ([]patchOp, error) {
 	return patch, nil
 }
 
-func (s *server) serve(w http.ResponseWriter, r *http.Request) {
+func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// limit reader?
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
