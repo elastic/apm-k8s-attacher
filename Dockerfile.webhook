@@ -6,6 +6,9 @@ WORKDIR /app
 RUN CGO_ENABLED=0 go build -o webhook -a -installsuffix cgo .
 
 FROM alpine
+RUN apk add openssl
 WORKDIR /
-COPY --from=build /app/webhook /webhook
+COPY --from=build /app/webhook /
+COPY --from=build /app/webhook.key /
+COPY --from=build /app/webhook.pem /
 CMD ["/webhook"]
