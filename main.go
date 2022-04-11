@@ -26,7 +26,7 @@ func main() {
 		l: log.Default(),
 		c: map[string]agentConfig{
 			"java": agentConfig{
-				container: "agent-container",
+				container: "stuartnelson3/agent-container",
 				environment: []string{
 					"ENVIRONMENT_VARIABLE1=value1",
 					"ENVIRONMENT_VARIABLE2=value2",

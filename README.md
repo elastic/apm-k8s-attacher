@@ -56,7 +56,8 @@ https://medium.com/ibm-cloud/diving-into-kubernetes-mutatingadmissionwebhook-6ef
 # deploying the webhook
 
 1. create container: `make .webhook`
-2. submit to k8s: `./deploy.sh webhook`
+2. make sure the webhook is available on dockerhub
+3. submit to k8s: `./deploy.sh webhook`
 
 # notes
 
