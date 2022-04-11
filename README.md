@@ -7,6 +7,33 @@ TODO:
   - what else
 - KinD
 
+# installing kubectl and KinD
+
+kubectl: https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
+
+```
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+chmod +x kubectl
+```
+
+kind: https://kind.sigs.k8s.io/docs/user/quick-start/
+
+```
+curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.12.0/kind-linux-amd64
+chmod +x ./kind
+mv ./kind /some-dir-in-your-PATH/kind
+```
+
+```
+kind create cluster --config kind.yaml
+```
+
+a config is created at `~/.kube/config`, which is already set to communicate
+with the cluster. if using two clusters, cf.:
+https://kind.sigs.k8s.io/docs/user/quick-start/#interacting-with-your-cluster
+
+# notes
+
 process:
 
 - start local kubernetes cluster with KinD
