@@ -37,15 +37,26 @@ generating the tls certs for local testing are documented here; the user will
 most likely be bringing their own. loading them into the cluster is also
 documented; clients and testing will have to do this regardless.
 
-1. decide on your app and namespace names. app name is required; namespace will
-   default to `default`.
-2. run the generation script: `./gen-cert.sh $APPNAME $NAMESPACE`
+1. things are currently hardcoded to use `webhook` and `default` as the app
+   name and namespace. in the future, maybe you can decide on your own names,
+   but for now hardcoding is easier.
+2. run the generation script: `make webhook.pem`
+
+TODO: tls cert management. they probably want to use kubectl secret store and
+not have the certs in the container.
+
+https://medium.com/ibm-cloud/diving-into-kubernetes-mutatingadmissionwebhook-6ef3c5695f74#e859
 
 # AdmissionWebhookRegistration object
 
 ```
-./submit-webhook-config.sh $APPNAME $NAMESPACE
+./submit-webhook-config.sh webhook
 ```
+
+# deploying the webhook
+
+1. create container: `make .webhook`
+2. submit to k8s: `./deploy.sh webhook`
 
 # notes
 
