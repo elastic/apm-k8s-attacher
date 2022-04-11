@@ -1,2 +1,6 @@
 mutating-webhook
 main
+csr.conf
+*.csr
+*.key
+*.pem

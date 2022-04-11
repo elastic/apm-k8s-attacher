@@ -1,5 +1,4 @@
 TODO:
-- TLS (is this needed?)
 - manifest files
   - client app w/ annotation
   - service for webhook
@@ -31,6 +30,16 @@ kind create cluster --config kind.yaml
 a config is created at `~/.kube/config`, which is already set to communicate
 with the cluster. if using two clusters, cf.:
 https://kind.sigs.k8s.io/docs/user/quick-start/#interacting-with-your-cluster
+
+# tls
+
+generating the tls certs for local testing are documented here; the user will
+most likely be bringing their own. loading them into the cluster is also
+documented; clients and testing will have to do this regardless.
+
+1. decide on your app and namespace names. app name is required; namespace will
+   default to `default`.
+2. run the generation script: `./gen-cert.sh $APPNAME $NAMESPACE`
 
 # notes
 
