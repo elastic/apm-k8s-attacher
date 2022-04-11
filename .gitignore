@@ -4,3 +4,6 @@ csr.conf
 *.csr
 *.key
 *.pem
+
+.agent
+.webhook
