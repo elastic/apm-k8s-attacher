@@ -107,6 +107,7 @@ func (s *server) createPatch(pod corev1.Pod) ([]patchOp, error) {
 	if annotations == nil {
 		return nil, errors.New("no annotations present")
 	}
+	// TODO: Do we want to support multiple comma-separated agents?
 	agent, ok := annotations[apmAnnotation]
 	if !ok {
 		return nil, errors.New("missing annotation `elastic-apm-agent`")
