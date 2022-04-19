@@ -1,11 +1,3 @@
-TODO:
-- manifest files
-  - client app w/ annotation
-  - service for webhook
-  - webhook config
-  - what else
-- KinD
-
 # installing kubectl and KinD
 
 kubectl: https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
@@ -31,7 +23,45 @@ a config is created at `~/.kube/config`, which is already set to communicate
 with the cluster. if using two clusters, cf.:
 https://kind.sigs.k8s.io/docs/user/quick-start/#interacting-with-your-cluster
 
+# removing KinD
+
+get the available clusters:
+
+```
+kind get clusters
+```
+
+delete desired clusters
+
+```
+kind delete cluster <cluster-name>
+```
+
+# debugging
+
+docker exec into the running KinD node
+From there, the pod network is exposed on the host, ie.
+
+```
+docker exec -it <kind container id> bash
+kubectl get pods -o wide
+# note the ip addr
+curl 10.244.0.16:5678
+```
+
+# developing
+
+make changes to the helm chart, and then you can install/upgrade it in the
+cluster:
+
+```
+helm install webhook apm-agent-auto-attach/
+helm upgrade webhook apm-agent-auto-attach/
+```
+
 # tls
+
+Note: this is handled now within the helmchart
 
 generating the tls certs for local testing are documented here; the user will
 most likely be bringing their own. loading them into the cluster is also
@@ -56,8 +86,14 @@ https://medium.com/ibm-cloud/diving-into-kubernetes-mutatingadmissionwebhook-6ef
 # deploying the webhook
 
 1. create container: `make .webhook`
-2. make sure the webhook is available on dockerhub
+2. make sure the webhook is available on dockerhub. mine is already there,
+   you'll have to change the container name if you want to use your own.
 3. submit to k8s: `./deploy.sh webhook`
+
+# deploying the example container
+
+once the container is deploying and the sidecar is being injected, try to use a
+real java/whatever app and a real agent, which ships to apm server.
 
 # notes
 
