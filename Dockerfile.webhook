@@ -9,6 +9,4 @@ FROM alpine
 RUN apk add openssl
 WORKDIR /
 COPY --from=build /app/webhook /
-COPY --from=build /app/webhook.key /
-COPY --from=build /app/webhook.pem /
 CMD ["/webhook"]
