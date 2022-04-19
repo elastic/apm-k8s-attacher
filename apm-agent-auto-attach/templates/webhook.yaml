@@ -1,3 +1,4 @@
+# heavily influenced by https://github.com/ExpediaGroup/kubernetes-sidecar-injector
 {{- define "common.labels" }}
 app.kubernetes.io/name: {{ .Release.Name }}
 app.kubernetes.io/component: webhook
@@ -85,9 +86,11 @@ spec:
         - name: {{ .Release.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          args:
-            - --certFile={{ .Values.certPath }}/{{ .Values.certFile }}
-            - --keyFile={{ .Values.certPath }}/{{ .Values.keyFile }}
+          # TODO: Why does the OCI runtime fail on these not being available?
+          # is there some timing thing with the mount?
+          # args:
+          #   - -certFile={{ .Values.certPath }}/{{ .Values.certFile }}
+          #   - -keyFile={{ .Values.certPath }}/{{ .Values.keyFile }}
           volumeMounts:
             - name: {{ .Release.Name }}-certs
               mountPath: {{ .Values.certPath }}
@@ -96,26 +99,6 @@ spec:
             - name: https
               containerPort: {{ .Values.container.port }}
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /healthz
-              port: https
-              scheme: HTTPS
-            initialDelaySeconds: 3
-            periodSeconds: 3
-            successThreshold: 1
-            failureThreshold: 5
-            timeoutSeconds: 4
-          readinessProbe:
-            httpGet:
-              path: /healthz
-              port: https
-              scheme: HTTPS
-            initialDelaySeconds: 3
-            periodSeconds: 3
-            successThreshold: 1
-            failureThreshold: 5
-            timeoutSeconds: 4
       volumes:
         - name: {{ .Release.Name }}-certs
           secret:
@@ -126,14 +109,10 @@ kind: Service
 metadata:
   name: {{ .Release.Name }}
   namespace: {{ .Release.Namespace }}
-  labels:
-    app: {{ .Release.Name }}
-  annotations:
-    deployment.kubernetes.io/revision: "$revision"
 spec:
   publishNotReadyAddresses: true
   ports:
     - port: 443
-      targetPort: 8443
+      targetPort: https
   selector:
-    app: {{ .Release.Name }}
+    {{- include "common.labels" . | indent 4 }}
