@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/http/httputil"
+	"os"
 
 	admissionv1 "k8s.io/api/admission/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -40,6 +42,16 @@ func main() {
 		Handler: ss,
 	}
 	log.Println("listening on :8443")
+	if f, err := os.Stat("/webhook.pem"); err != nil {
+		panic(err)
+	} else {
+		fmt.Printf("%+v\n", f)
+	}
+	if f, err := os.Stat("/webhook.key"); err != nil {
+		panic(err)
+	} else {
+		fmt.Printf("%+v\n", f)
+	}
 	log.Fatal(s.ListenAndServeTLS("/webhook.pem", "/webhook.key"))
 }
 
@@ -83,6 +95,12 @@ func (s *server) mutate(ar *admissionv1.AdmissionReview) *admissionv1.AdmissionR
 			},
 		}
 	}
+
+	fmt.Println("patch created:")
+	for _, po := range patch {
+		fmt.Printf("%+v\n", po)
+	}
+
 	patchBytes, err := json.Marshal(patch)
 	if err != nil {
 		return &admissionv1.AdmissionResponse{
@@ -150,6 +168,15 @@ func (s *server) createPatch(pod corev1.Pod) ([]patchOp, error) {
 }
 
 func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		req, err := httputil.DumpRequestOut(r, true)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		fmt.Fprintln(w, string(req))
+		return
+	}
 	// limit reader?
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
