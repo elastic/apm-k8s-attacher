@@ -1,0 +1,20 @@
+image:
+  repository: stuartnelson3/webhook
+  tag: latest
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+
+certPath: /opt/webhook/certs
+certFile: cert.pem
+keyFile: key.pem
+
+replicaCount: 1
+
+service:
+  port: 443
+
+container:
+  port: 8443
+
+podAnnotations: {}
+podLabels: {}
