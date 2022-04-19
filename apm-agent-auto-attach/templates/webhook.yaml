@@ -51,11 +51,16 @@ webhooks:
     rules:
       - operations: ["CREATE"]
         apiGroups: [""]
-        apiVersions: ["v1"]
+        apiVersions: ["*"]
         resources: ["pods"]
     namespaceSelector:
       matchExpressions:
-        - {key: elastic-apm-agent, operator: Exists}
+        # TODO: Using operator: Exists did not work, so this is a hack to force
+        # sending the pods through the admission controller.
+        - key: elastic-apm-agent
+          operator: NotIn
+          values:
+            - "true"
 ---
 apiVersion: apps/v1
 kind: Deployment
