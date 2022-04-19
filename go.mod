@@ -1,4 +1,4 @@
-module git.sr.ht/~stuartnelson3/notes/mutating-webhook
+module git.sr.ht/~stuartnelson3/mutating-webhook
 
 go 1.17
 
