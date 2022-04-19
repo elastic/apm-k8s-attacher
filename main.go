@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -22,7 +23,10 @@ func main() {
 		runtimeScheme = runtime.NewScheme()
 		codecs        = serializer.NewCodecFactory(runtimeScheme)
 		deserializer  = codecs.UniversalDeserializer()
+		certPath      = flag.String("-cert", "/opt/webhook/certs/cert.pem", "path to cert.pem")
+		keyPath       = flag.String("-cert", "/opt/webhook/certs/cert.pem", "path to key.pem")
 	)
+	flag.Parse()
 	ss := &server{
 		d: deserializer,
 		l: log.Default(),
@@ -42,17 +46,17 @@ func main() {
 		Handler: ss,
 	}
 	log.Println("listening on :8443")
-	if f, err := os.Stat("/webhook.pem"); err != nil {
+	if f, err := os.Stat(*certPath); err != nil {
 		panic(err)
 	} else {
 		fmt.Printf("%+v\n", f)
 	}
-	if f, err := os.Stat("/webhook.key"); err != nil {
+	if f, err := os.Stat(*keyPath); err != nil {
 		panic(err)
 	} else {
 		fmt.Printf("%+v\n", f)
 	}
-	log.Fatal(s.ListenAndServeTLS("/webhook.pem", "/webhook.key"))
+	log.Fatal(s.ListenAndServeTLS(*certPath, *keyPath))
 }
 
 type server struct {
