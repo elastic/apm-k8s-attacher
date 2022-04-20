@@ -1,18 +1,18 @@
 package main
 
 import (
-	"fmt"
-	"log"
 	"strconv"
 
-	admissionv1 "k8s.io/api/admission/v1"
 	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-const (
-	traceLabel = `elastic_trace`
-)
+// patchOperation is an operation of a JSON patch, see
+// https://tools.ietf.org/html/rfc6902.
+type patchOperation struct {
+	Op    string      `json:"op"`
+	Path  string      `json:"path"`
+	Value interface{} `json:"value,omitempty"`
+}
 
 var (
 	volumeMounts = corev1.VolumeMount{
@@ -126,66 +126,4 @@ func createVolumeMountsPatch(createArray bool, index int) patchOperation {
 		}
 	}
 	return patch
-}
-
-var podResource = metav1.GroupVersionResource{Version: "v1", Resource: "pods"}
-
-// Applying the proper settings in order to trace all containers of pods that has the tracing label
-func applyTraceSettings(req *admissionv1.AdmissionRequest) ([]patchOperation, error) {
-	// This handler should only get called on Pod objects as per the MutatingWebhookConfiguration in the YAML file.
-	// However, if (for whatever reason) this gets invoked on an object of a different kind, issue a log message but
-	// let the object request pass through otherwise.
-	if req.Resource != podResource {
-		log.Printf("expect resource to be %s", podResource)
-		return nil, nil
-	}
-
-	// Parse the Pod object.
-	raw := req.Object.Raw
-	pod := corev1.Pod{}
-	// todo: use the returned pod may be safer than using the provided reference, as per the documentation of Decode
-	if _, _, err := universalDeserializer.Decode(raw, nil, &pod); err != nil {
-		return nil, fmt.Errorf("could not deserialize pod object: %v", err)
-	}
-
-	fmt.Fprintf(log.Writer(), "(version #5) pod configuration: %+v\n", pod)
-
-	labels := pod.Labels
-	if labels == nil {
-		return nil, nil
-	}
-
-	// We apply our patches only if the tracing label is set on this pod
-	traceValue, ok := labels[traceLabel]
-	if !ok {
-		return nil, nil
-	} else {
-		parseBool, err := strconv.ParseBool(traceValue)
-		if err != nil {
-			log.Printf("the `%s` label should be set with a boolean value. `%s` is illegal", traceLabel, traceValue)
-		}
-		if !parseBool {
-			return nil, nil
-		}
-	}
-
-	spec := pod.Spec
-
-	// Create patch operations
-	var patches []patchOperation
-
-	// Add a volume mount to the pod
-	patches = append(patches, createVolumePatch(spec.Volumes == nil))
-
-	// Add an init container, that will fetch the agent Docker image and extract the agent jar to the agent volume
-	patches = append(patches, createInitContainerPatch(spec.InitContainers == nil))
-
-	// Add agent env variables for each container at the pod, as well as the volume mount
-	containers := spec.Containers
-	for index, container := range containers {
-		patches = append(patches, createVolumeMountsPatch(container.VolumeMounts == nil, index))
-		patches = append(patches, createEnvVariablesPatches(container.Env == nil, index)...)
-	}
-
-	return patches, nil
 }

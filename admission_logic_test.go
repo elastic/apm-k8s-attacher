@@ -6,11 +6,7 @@ import (
 	"testing"
 )
 
-func Test_applyTraceSettings(t *testing.T) {
-
-}
-
-func Test_jsonPatches(t *testing.T) {
+func TestJSONPatches(t *testing.T) {
 	var patches []patchOperation
 
 	patches = append(patches, createVolumePatch(false))
