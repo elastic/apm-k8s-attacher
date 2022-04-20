@@ -51,6 +51,8 @@ curl 10.244.0.16:5678
 
 # developing
 
+## helm chart
+
 make changes to the helm chart, and then you can install/upgrade it in the
 cluster:
 
@@ -59,7 +61,34 @@ helm install webhook apm-agent-auto-attach/
 helm upgrade webhook apm-agent-auto-attach/
 ```
 
-# tls
+## webhook
+
+Do your normal go development in the top-level *.go files of this repo.
+
+### creating the webhook container
+
+Note: The container used is alpine, because it's tiny but still allows for some
+degree of debugging. You're pretty much sunk if you're using scratch.
+
+1. create container: `make .webhook`
+2. make the webhook is available on dockerhub. mine is already there, you'll
+   have to change the container name if you want to use your own. this will
+   require updating the helmchart.
+
+## deploying the example container
+
+to deploy a simple echo server:
+
+```
+./example_deploy.sh
+```
+
+it already has the correct annotation. you can check that it's been configured
+correctly by the webhook using `kubectl`.
+
+# old notes that probably are no longer relevant
+
+## tls
 
 Note: this is handled now within the helmchart
 
@@ -77,25 +106,13 @@ not have the certs in the container.
 
 https://medium.com/ibm-cloud/diving-into-kubernetes-mutatingadmissionwebhook-6ef3c5695f74#e859
 
-# AdmissionWebhookRegistration object
+## AdmissionWebhookRegistration object
 
 ```
 ./submit-webhook-config.sh webhook
 ```
 
-# deploying the webhook
-
-1. create container: `make .webhook`
-2. make sure the webhook is available on dockerhub. mine is already there,
-   you'll have to change the container name if you want to use your own.
-3. submit to k8s: `./deploy.sh webhook`
-
-# deploying the example container
-
-once the container is deploying and the sidecar is being injected, try to use a
-real java/whatever app and a real agent, which ships to apm server.
-
-# notes
+## notes
 
 process:
 
