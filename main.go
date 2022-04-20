@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"net/http/httputil"
 	"os"
 
 	admissionv1 "k8s.io/api/admission/v1"
@@ -41,9 +40,11 @@ func main() {
 			},
 		},
 	}
+	_ = ss
 	s := &http.Server{
 		Addr:    ":8443",
 		Handler: ss,
+		// Handler: admitFuncHandler(applyTraceSettings),
 	}
 	log.Println("listening on :8443")
 	if f, err := os.Stat(*certPath); err != nil {
@@ -91,9 +92,21 @@ func (s *server) mutate(ar *admissionv1.AdmissionReview) *admissionv1.AdmissionR
 		req.Kind, req.Namespace, req.Name, pod.Name, req.UID, req.Operation, req.UserInfo)
 
 	// create patch
-	var patch []patchOp
+	// var patch []patchOperation
 	// if !isKubeNamespace(ar.Request.Namespace) {
-	// 	patch, err := s.createPatch(pod)
+	// 	var err error
+	// 	patch, err = s.createPatch(pod)
+	// 	if err != nil {
+	// 		s.l.Println("error", err)
+	// 		return &admissionv1.AdmissionResponse{
+	// 			Result: &metav1.Status{
+	// 				Message: fmt.Sprintf("err %v", err),
+	// 			},
+	// 		}
+	// 	}
+	// }
+	// if !isKubeNamespace(ar.Request.Namespace) {
+	// 	patch, err := applyTraceSettings(ar.Request)
 	// 	if err != nil {
 	// 		return &admissionv1.AdmissionResponse{
 	// 			Result: &metav1.Status{
@@ -103,30 +116,25 @@ func (s *server) mutate(ar *admissionv1.AdmissionReview) *admissionv1.AdmissionR
 	// 	}
 	// }
 
-	fmt.Println("patch created:")
-	for _, po := range patch {
-		fmt.Printf("%+v\n", po)
-	}
-
-	patchBytes, err := json.Marshal(patch)
-	if err != nil {
-		return &admissionv1.AdmissionResponse{
-			Result: &metav1.Status{
-				Message: fmt.Sprintf("err: %v", err),
-			},
-		}
-	}
+	// patchBytes, err := json.Marshal(patch)
+	// if err != nil {
+	// 	s.l.Println("error", err)
+	// 	return &admissionv1.AdmissionResponse{
+	// 		Result: &metav1.Status{
+	// 			Message: err.Error(),
+	// 		},
+	// 	}
+	// }
 	// return AdmissionResponse
-	patchTypeJSON := admissionv1.PatchTypeJSONPatch
+	// patchTypeJSON := admissionv1.PatchTypeJSONPatch
 	return &admissionv1.AdmissionResponse{
-		Allowed:   true,
-		Patch:     patchBytes,
-		PatchType: &patchTypeJSON,
+		Result: &metav1.Status{
+			Status: "Success",
+		},
+		Allowed: true,
+		// Patch:     patchBytes,
+		// PatchType: &patchTypeJSON,
 	}
-}
-
-func isKubeNamespace(ns string) bool {
-	return ns == metav1.NamespacePublic || ns == metav1.NamespaceSystem
 }
 
 type patchOp struct {
@@ -135,74 +143,89 @@ type patchOp struct {
 	Value string `json:"value"`
 }
 
-func (s *server) createPatch(pod corev1.Pod) ([]patchOp, error) {
+func (s *server) createPatch(pod corev1.Pod) ([]patchOperation, error) {
 	annotations := pod.ObjectMeta.GetAnnotations()
 	if annotations == nil {
 		return nil, errors.New("no annotations present")
 	}
 	// TODO: Do we want to support multiple comma-separated agents?
-	agent, ok := annotations[apmAnnotation]
+	_, ok := annotations[apmAnnotation]
 	if !ok {
 		return nil, errors.New("missing annotation `elastic-apm-agent`")
 	}
-	// TODO: validate the config has a container field
-	config, ok := s.c[agent]
-	if !ok {
-		return nil, fmt.Errorf("no config for agent `%s`", agent)
+	// Create patch operations
+	var patches []patchOperation
+
+	spec := pod.Spec
+
+	// Add a volume mount to the pod
+	patches = append(patches, createVolumePatch(spec.Volumes == nil))
+
+	// Add an init container, that will fetch the agent Docker image and extract the agent jar to the agent volume
+	patches = append(patches, createInitContainerPatch(spec.InitContainers == nil))
+
+	// Add agent env variables for each container at the pod, as well as the volume mount
+	containers := spec.Containers
+	for index, container := range containers {
+		patches = append(patches, createVolumeMountsPatch(container.VolumeMounts == nil, index))
+		patches = append(patches, createEnvVariablesPatches(container.Env == nil, index)...)
 	}
 
-	// adding each environment variable to agent container + appending
-	// agent container to containers list
-	patch := make([]patchOp, 0, len(config.environment)+1)
-	agentIdx := len(pod.Spec.Containers) + 1
+	return patches, nil
 
-	for i, envPair := range config.environment {
-		patch = append(patch, patchOp{
-			Op: "add",
-			// TODO: Is this right?
-			Path:  fmt.Sprintf("/spec/containers/%d/env/%d", agentIdx, i),
-			Value: envPair,
-		})
-	}
-	// TODO: Is it necessary to have EACH container in the patch operation?
-	// or just the one I'm adding?
-	// TODO: Seems like network space within a pod is flat, ie. the app can
-	// communicate on the default localhost:XXXX address to address the
-	// agent in a separate container.
-	patch[agentIdx] = patchOp{
-		Op:    "add",
-		Path:  fmt.Sprintf("/spec/containers/%d/image", agentIdx),
-		Value: config.container,
-	}
+	// // TODO: validate the config has a container field
+	// config, ok := s.c[agent]
+	// if !ok {
+	// 	return nil, fmt.Errorf("no config for agent `%s`", agent)
+	// }
 
-	return patch, nil
+	// // adding each environment variable to agent container + appending
+	// // agent container to containers list
+	// patch := make([]patchOp, 0, len(config.environment)+1)
+	// agentIdx := len(pod.Spec.Containers) + 1
+
+	// for i, envPair := range config.environment {
+	// 	patch = append(patch, patchOp{
+	// 		Op: "add",
+	// 		// TODO: Is this right?
+	// 		Path:  fmt.Sprintf("/spec/containers/%d/env/%d", agentIdx, i),
+	// 		Value: envPair,
+	// 	})
+	// }
+	// // TODO: Is it necessary to have EACH container in the patch operation?
+	// // or just the one I'm adding?
+	// // TODO: Seems like network space within a pod is flat, ie. the app can
+	// // communicate on the default localhost:XXXX address to address the
+	// // agent in a separate container.
+	// patch[agentIdx] = patchOp{
+	// 	Op:    "add",
+	// 	Path:  fmt.Sprintf("/spec/containers/%d/image", agentIdx),
+	// 	Value: config.container,
+	// }
+
+	// return patch, nil
 }
 
 func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.l.Println("request received")
-	req, err := httputil.DumpRequest(r, true)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	fmt.Fprintln(w, string(req))
-	if r.URL.Path != "/" {
-		return
-	}
-	// limit reader?
+	// read the body / request
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("error reading body: %v", err), http.StatusInternalServerError)
+		sendError(err, w)
 		return
 	}
-	// check body length?
 
-	// verify the content type is accurate?
-	contentType := r.Header.Get("Content-Type")
-	if contentType != "application/json" {
-		http.Error(w, "invalid Content-Type, expect `application/json`", http.StatusUnsupportedMediaType)
+	// mutate the request
+	mutated, err := Mutate(body, true)
+	if err != nil {
+		sendError(err, w)
 		return
 	}
+
+	// and write it back
+	w.WriteHeader(http.StatusOK)
+	w.Write(mutated)
+	return
 
 	var admissionResponse *admissionv1.AdmissionResponse
 	ar := admissionv1.AdmissionReview{}
@@ -227,7 +250,88 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if err := json.NewEncoder(w).Encode(admissionReview); err != nil {
+	bts, err := json.Marshal(admissionReview)
+	if err != nil {
+		s.l.Printf("marshal admissionReview err: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	fmt.Println(string(bts))
+	if _, err := w.Write(bts); err != nil {
 		s.l.Printf("marshal admissionReview err: %v", err)
 	}
+}
+
+func sendError(err error, w http.ResponseWriter) {
+	log.Println(err)
+	w.WriteHeader(http.StatusInternalServerError)
+	fmt.Fprintf(w, "%s", err)
+}
+
+func Mutate(body []byte, verbose bool) ([]byte, error) {
+	// unmarshal request into AdmissionReview struct
+	admReview := admissionv1.AdmissionReview{}
+	if err := json.Unmarshal(body, &admReview); err != nil {
+		return nil, fmt.Errorf("unmarshaling request failed with %s", err)
+	}
+
+	var err error
+	var pod *corev1.Pod
+
+	responseBody := []byte{}
+	ar := admReview.Request
+	resp := admissionv1.AdmissionResponse{}
+
+	if ar != nil {
+
+		// get the Pod object and unmarshal it into its struct, if we cannot, we might as well stop here
+		if err := json.Unmarshal(ar.Object.Raw, &pod); err != nil {
+			return nil, fmt.Errorf("unable unmarshal pod json object %v", err)
+		}
+		// set response options
+		resp.Allowed = true
+		resp.UID = ar.UID
+		pT := admissionv1.PatchTypeJSONPatch
+		resp.PatchType = &pT // it's annoying that this needs to be a pointer as you cannot give a pointer to a constant?
+
+		spec := pod.Spec
+
+		// Create patch operations
+		var patches []patchOperation
+
+		// Add a volume mount to the pod
+		patches = append(patches, createVolumePatch(spec.Volumes == nil))
+
+		// Add an init container, that will fetch the agent Docker image and extract the agent jar to the agent volume
+		patches = append(patches, createInitContainerPatch(spec.InitContainers == nil))
+
+		// Add agent env variables for each container at the pod, as well as the volume mount
+		containers := spec.Containers
+		for index, container := range containers {
+			patches = append(patches, createVolumeMountsPatch(container.VolumeMounts == nil, index))
+			patches = append(patches, createEnvVariablesPatches(container.Env == nil, index)...)
+		}
+
+		// parse the []map into JSON
+		resp.Patch, err = json.Marshal(patches)
+
+		// Success, of course ;)
+		resp.Result = &metav1.Status{
+			Status: "Success",
+		}
+
+		admReview.Response = &resp
+		// back into JSON so we can return the finished AdmissionReview w/ Response directly
+		// w/o needing to convert things in the http handler
+		responseBody, err = json.Marshal(admReview)
+		if err != nil {
+			return nil, err // untested section
+		}
+	}
+
+	if verbose {
+		log.Printf("resp: %s\n", string(responseBody)) // untested section
+	}
+
+	return responseBody, nil
 }
