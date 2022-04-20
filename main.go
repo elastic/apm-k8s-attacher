@@ -91,14 +91,17 @@ func (s *server) mutate(ar *admissionv1.AdmissionReview) *admissionv1.AdmissionR
 		req.Kind, req.Namespace, req.Name, pod.Name, req.UID, req.Operation, req.UserInfo)
 
 	// create patch
-	patch, err := s.createPatch(pod)
-	if err != nil {
-		return &admissionv1.AdmissionResponse{
-			Result: &metav1.Status{
-				Message: fmt.Sprintf("err: %v", err),
-			},
-		}
-	}
+	var patch []patchOp
+	// if !isKubeNamespace(ar.Request.Namespace) {
+	// 	patch, err := s.createPatch(pod)
+	// 	if err != nil {
+	// 		return &admissionv1.AdmissionResponse{
+	// 			Result: &metav1.Status{
+	// 				Message: fmt.Sprintf("err: %v", err),
+	// 			},
+	// 		}
+	// 	}
+	// }
 
 	fmt.Println("patch created:")
 	for _, po := range patch {
@@ -120,6 +123,10 @@ func (s *server) mutate(ar *admissionv1.AdmissionReview) *admissionv1.AdmissionR
 		Patch:     patchBytes,
 		PatchType: &patchTypeJSON,
 	}
+}
+
+func isKubeNamespace(ns string) bool {
+	return ns == metav1.NamespacePublic || ns == metav1.NamespaceSystem
 }
 
 type patchOp struct {
