@@ -55,13 +55,11 @@ webhooks:
         resources: ["pods"]
     namespaceSelector:
       matchExpressions:
-        # TODO: Figure out the selector better.
-        - key: elastic-apm-agent
-          operator: In
+        - key: kubernetes.io/metadata.name
+          operator: NotIn
           values:
-            - "java"
-            - "dotnet"
-            - "node"
+            - kube-system
+            - kube-public
 ---
 apiVersion: apps/v1
 kind: Deployment
