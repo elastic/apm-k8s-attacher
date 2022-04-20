@@ -55,12 +55,13 @@ webhooks:
         resources: ["pods"]
     namespaceSelector:
       matchExpressions:
-        # TODO: Using operator: Exists did not work, so this is a hack to force
-        # sending the pods through the admission controller.
+        # TODO: Figure out the selector better.
         - key: elastic-apm-agent
-          operator: NotIn
+          operator: In
           values:
-            - "true"
+            - "java"
+            - "dotnet"
+            - "node"
 ---
 apiVersion: apps/v1
 kind: Deployment
