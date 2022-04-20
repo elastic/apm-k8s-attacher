@@ -31,6 +31,8 @@ data:
   cert.pem: {{ b64enc $cert.Cert }}
   key.pem: {{ b64enc $cert.Key }}
 ---
+# TODO: Updating this breaks old running webhook pods. Figure out how to
+# auto-restart them.
 apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
@@ -53,13 +55,21 @@ webhooks:
         apiGroups: [""]
         apiVersions: ["*"]
         resources: ["pods"]
-    namespaceSelector:
-      matchExpressions:
-        - key: kubernetes.io/metadata.name
-          operator: NotIn
-          values:
-            - kube-system
-            - kube-public
+    # namespaceSelector:
+    #   matchExpressions:
+    #     # TODO: Do we want to narrow this down to specific namespaces, or
+    #     # exempt specific namespaces?  Or is checking every pod regardless of
+    #     # namespace, and then only applying if they have the correct
+    #     # annotation, how we want to handle this?
+    #     - key: kubernetes.io/metadata.name
+    #       operator: NotIn
+    #       values:
+    #         - kube-system
+    #         - kube-public
+    #         # The webhook has to be deployed to its own namespace, or else
+    #         # attempts at scaling up pods will fail when trying to call
+    #         # themself.
+    #         - {{ .Release.Namespace }}
 ---
 apiVersion: apps/v1
 kind: Deployment
