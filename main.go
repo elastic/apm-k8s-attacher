@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -70,7 +71,7 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	mutated, err := mutate(body)
+	mutated, err := s.mutate(body)
 	if err != nil {
 		sendError(err, w)
 		return
@@ -86,7 +87,10 @@ func sendError(err error, w http.ResponseWriter) {
 	fmt.Fprintf(w, "%s", err)
 }
 
-func mutate(body []byte) ([]byte, error) {
+// TODO:
+// - check for annotation
+// - apply correct environment variables based on annotation value
+func (s *server) mutate(body []byte) ([]byte, error) {
 	admReview := admissionv1.AdmissionReview{}
 	if err := json.Unmarshal(body, &admReview); err != nil {
 		return nil, fmt.Errorf("unmarshaling request failed with %s", err)
@@ -103,6 +107,24 @@ func mutate(body []byte) ([]byte, error) {
 		if err := json.Unmarshal(ar.Object.Raw, &pod); err != nil {
 			return nil, fmt.Errorf("unable unmarshal pod json object %v", err)
 		}
+
+		annotations := pod.ObjectMeta.GetAnnotations()
+		if annotations == nil {
+			return nil, errors.New("no annotations present")
+		}
+		// TODO: Do we want to support multiple comma-separated agents?
+		agent, ok := annotations[apmAnnotation]
+		if !ok {
+			return nil, errors.New("missing annotation `elastic-apm-agent`")
+		}
+		// TODO: validate the config has a container field
+		config, ok := s.c[agent]
+		if !ok {
+			return nil, fmt.Errorf("no config for agent `%s`", agent)
+		}
+		// TODO: Use the config to mutate the container.
+		_ = config
+
 		resp.Allowed = true
 		resp.UID = ar.UID
 		pT := admissionv1.PatchTypeJSONPatch
