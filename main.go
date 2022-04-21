@@ -116,6 +116,7 @@ func (s *server) mutate(admReview *admissionv1.AdmissionReview) error {
 	resp.Allowed = true
 	resp.UID = ar.UID
 
+	// TODO: encapsulate this whole config logic into a fn
 	result := new(metav1.Status)
 	annotations := pod.ObjectMeta.GetAnnotations()
 	if annotations == nil {
