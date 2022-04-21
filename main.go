@@ -146,28 +146,13 @@ func (s *server) mutate(admReview *admissionv1.AdmissionReview) error {
 	pT := admissionv1.PatchTypeJSONPatch
 	resp.PatchType = &pT
 
-	spec := pod.Spec
+	patch := createPatch(pod.Spec)
 
-	// Create patch operations
-	var patches []patchOperation
-
-	// Add a volume mount to the pod
-	patches = append(patches, createVolumePatch(spec.Volumes == nil))
-
-	// Add an init container, that will fetch the agent Docker image and extract the agent jar to the agent volume
-	patches = append(patches, createInitContainerPatch(spec.InitContainers == nil))
-
-	// Add agent env variables for each container at the pod, as well as the volume mount
-	containers := spec.Containers
-	for index, container := range containers {
-		patches = append(patches, createVolumeMountsPatch(container.VolumeMounts == nil, index))
-		patches = append(patches, createEnvVariablesPatches(container.Env == nil, index)...)
-	}
-	patch, err := json.Marshal(patches)
+	marshaled, err := json.Marshal(patch)
 	if err != nil {
 		return err
 	}
-	resp.Patch = patch
+	resp.Patch = marshaled
 
 	resp.Result = &metav1.Status{
 		Status: "Success",

@@ -36,6 +36,25 @@ var (
 	}
 )
 
+func createPatch(spec corev1.PodSpec) []patchOperation {
+	// Create patch operations
+	var patches []patchOperation
+
+	// Add a volume mount to the pod
+	patches = append(patches, createVolumePatch(spec.Volumes == nil))
+
+	// Add an init container, that will fetch the agent Docker image and extract the agent jar to the agent volume
+	patches = append(patches, createInitContainerPatch(spec.InitContainers == nil))
+
+	// Add agent env variables for each container at the pod, as well as the volume mount
+	containers := spec.Containers
+	for index, container := range containers {
+		patches = append(patches, createVolumeMountsPatch(container.VolumeMounts == nil, index))
+		patches = append(patches, createEnvVariablesPatches(container.Env == nil, index)...)
+	}
+	return patches
+}
+
 func createVolumePatch(createArray bool) patchOperation {
 	agentVolume := corev1.Volume{
 		Name:         "elastic-apm-agent",
