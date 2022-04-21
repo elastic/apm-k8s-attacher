@@ -24,7 +24,7 @@ func main() {
 		deserializer  = codecs.UniversalDeserializer()
 		certPath      = flag.String("certFile", "/opt/webhook/certs/cert.pem", "path to cert.pem")
 		keyPath       = flag.String("keyFile", "/opt/webhook/certs/key.pem", "path to key.pem")
-		configPath    = flag.String("config", "/opt/webhook/config/config.yaml", "path to config.yaml")
+		configPath    = flag.String("config", "/opt/webhook/config/webhook.yaml", "path to config.yaml")
 	)
 	flag.Parse()
 
