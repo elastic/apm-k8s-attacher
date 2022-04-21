@@ -14,10 +14,16 @@ type patchOperation struct {
 	Value interface{} `json:"value,omitempty"`
 }
 
+const volumeName = "elastic-apm-agent"
+
 var (
 	volumeMounts = corev1.VolumeMount{
-		Name:      "elastic-apm-agent",
+		Name:      volumeName,
 		MountPath: "/elastic/apm/agent",
+	}
+	agentVolume = corev1.Volume{
+		Name:         volumeName,
+		VolumeSource: corev1.VolumeSource{EmptyDir: &corev1.EmptyDirVolumeSource{}},
 	}
 )
 
@@ -60,10 +66,6 @@ func generateEnvironmentVariables(config agentConfig) []corev1.EnvVar {
 }
 
 func createVolumePatch(createArray bool) patchOperation {
-	agentVolume := corev1.Volume{
-		Name:         "elastic-apm-agent",
-		VolumeSource: corev1.VolumeSource{EmptyDir: &corev1.EmptyDirVolumeSource{}},
-	}
 	var patch patchOperation
 	if createArray {
 		patch = patchOperation{
