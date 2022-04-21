@@ -98,8 +98,6 @@ func sendError(err error, w http.ResponseWriter) {
 // TODO:
 // - check for annotation
 // - apply correct environment variables based on annotation value
-// - handle: return an AdmissionReview
-// - mutate: return an AdmissionResponse
 func (s *server) mutate(admReview *admissionv1.AdmissionReview) error {
 	var pod *corev1.Pod
 
