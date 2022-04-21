@@ -9,7 +9,7 @@ import (
 
 func TestEnvVarPatch(t *testing.T) {
 	config := agentConfig{
-		environment: map[string]string{"SANITY_CHECK": "true"},
+		Environment: map[string]string{"SANITY_CHECK": "true"},
 	}
 	vars := generateEnvironmentVariables(config)
 	patches := createEnvVariablesPatches(vars, true, 0)
@@ -22,13 +22,13 @@ func TestEnvVarPatch(t *testing.T) {
 
 func TestInitContainerPatch(t *testing.T) {
 	config := agentConfig{
-		image: "stuartnelson3/agent-image:1.2.3",
+		Image: "stuartnelson3/agent-image:1.2.3",
 	}
 	patch := createInitContainerPatch(config, true)
 	initContainers := patch.Value.([]corev1.Container)
 	assert.Len(t, initContainers, 1)
 	ic := initContainers[0]
 	assert.Equal(t, ic.Name, "agent-image")
-	assert.Equal(t, ic.Image, config.image)
+	assert.Equal(t, ic.Image, config.Image)
 	assert.NotEmpty(t, ic.VolumeMounts)
 }

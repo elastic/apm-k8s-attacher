@@ -54,7 +54,7 @@ func createPatch(config agentConfig, spec corev1.PodSpec) []patchOperation {
 }
 
 func generateEnvironmentVariables(config agentConfig) []corev1.EnvVar {
-	vars := make([]corev1.EnvVar, 1, len(config.environment)+1)
+	vars := make([]corev1.EnvVar, 1, len(config.Environment)+1)
 	vars[0] = corev1.EnvVar{
 		Name: "ELASTIC_APM_SECRET_TOKEN",
 		ValueFrom: &corev1.EnvVarSource{
@@ -64,7 +64,7 @@ func generateEnvironmentVariables(config agentConfig) []corev1.EnvVar {
 			},
 		},
 	}
-	for name, value := range config.environment {
+	for name, value := range config.Environment {
 		vars = append(vars, corev1.EnvVar{Name: name, Value: value})
 	}
 	return vars
@@ -89,11 +89,11 @@ func createVolumePatch(createArray bool) patchOperation {
 }
 
 func createInitContainerPatch(config agentConfig, createArray bool) patchOperation {
-	bp := filepath.Base(config.image)
+	bp := filepath.Base(config.Image)
 	name := strings.Split(bp, ":")
 	agentInitContainer := corev1.Container{
 		Name:         name[0],
-		Image:        config.image,
+		Image:        config.Image,
 		VolumeMounts: []corev1.VolumeMount{volumeMounts},
 		// TODO: should this be a default, and then users can modify it *if needed*?
 		Command: []string{"cp", "-v", "/usr/agent/elastic-apm-agent.jar", mountPath},
