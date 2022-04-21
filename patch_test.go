@@ -1,23 +1,22 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	corev1 "k8s.io/api/core/v1"
 )
 
-func TestJSONPatches(t *testing.T) {
-	var patches []patchOperation
-
-	patches = append(patches, createVolumePatch(false))
-	patches = append(patches, createInitContainerPatch(true))
-	patches = append(patches, createVolumeMountsPatch(true, 1))
-	patches = append(patches, createEnvVariablesPatches(true, 2)...)
-
-	patchBytes, err := json.MarshalIndent(patches, "", "    ")
-	if err != nil {
-		fmt.Printf("marshalling error: %s", err)
+func TestConfig(t *testing.T) {
+	config := agentConfig{
+		container:   "stuartnelson3/agent-container",
+		environment: map[string]string{"SANITY_CHECK": "true"},
 	}
-	json := string(patchBytes)
-	fmt.Printf("volume:\n%+v", json)
+	vars := generateEnvironmentVariables(config)
+	patches := createEnvVariablesPatches(vars, true, 0)
+	assert.Len(t, patches, 1)
+	environmentVariables := patches[0].Value.([]corev1.EnvVar)
+	assert.Len(t, environmentVariables, 2)
+	assert.Equal(t, "ELASTIC_APM_SECRET_TOKEN", environmentVariables[0].Name)
+	assert.Equal(t, "SANITY_CHECK", environmentVariables[1].Name)
 }

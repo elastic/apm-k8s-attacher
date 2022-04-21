@@ -30,10 +30,13 @@ func main() {
 		c: map[string]agentConfig{
 			"java": agentConfig{
 				container: "stuartnelson3/agent-container",
-				environment: []string{
-					"ENVIRONMENT_VARIABLE1=value1",
-					"ENVIRONMENT_VARIABLE2=value2",
-					"ENVIRONMENT_VARIABLE3=value3",
+				environment: map[string]string{
+					"ELASTIC_APM_SERVER_URLS":                      "http://34.78.173.219:8200",
+					"ELASTIC_APM_SERVICE_NAME":                     "petclinic",
+					"ELASTIC_APM_ENVIRONMENT":                      "test",
+					"ELASTIC_APM_LOG_LEVEL":                        "debug",
+					"ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED": "true",
+					"JAVA_TOOL_OPTIONS":                            "-javaagent:/elastic/apm/agent/elastic-apm-agent.jar",
 				},
 			},
 		},
@@ -55,10 +58,8 @@ type server struct {
 
 // TODO: Add parsing
 type agentConfig struct {
-	container string
-	// TODO: define in config as map[string]string, but convert to []string
-	// on parse.
-	environment []string
+	container   string
+	environment map[string]string
 }
 
 const apmAnnotation = "elastic-apm-agent"
@@ -141,13 +142,11 @@ func (s *server) mutate(admReview *admissionv1.AdmissionReview) error {
 		admReview.Response = &resp
 		return nil
 	}
-	// TODO: Use the config to mutate the container.
-	_ = config
 
 	pT := admissionv1.PatchTypeJSONPatch
 	resp.PatchType = &pT
 
-	patch := createPatch(pod.Spec)
+	patch := createPatch(config, pod.Spec)
 
 	marshaled, err := json.Marshal(patch)
 	if err != nil {

@@ -19,26 +19,13 @@ var (
 		Name:      "elastic-apm-agent",
 		MountPath: "/elastic/apm/agent",
 	}
-
-	envVariables = []corev1.EnvVar{
-		{Name: "ELASTIC_APM_SERVER_URLS", Value: "http://34.78.173.219:8200"},
-		{Name: "ELASTIC_APM_SERVICE_NAME", Value: "petclinic"},
-		{Name: "ELASTIC_APM_ENVIRONMENT", Value: "test"},
-		{Name: "ELASTIC_APM_LOG_LEVEL", Value: "debug"},
-		{Name: "ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED", Value: "true"},
-		{Name: "ELASTIC_APM_SECRET_TOKEN", ValueFrom: &corev1.EnvVarSource{
-			SecretKeyRef: &corev1.SecretKeySelector{
-				LocalObjectReference: corev1.LocalObjectReference{Name: "apm-server-apm-token"},
-				Key:                  "secret-token",
-			},
-		}},
-		{Name: "JAVA_TOOL_OPTIONS", Value: "-javaagent:/elastic/apm/agent/elastic-apm-agent.jar"},
-	}
 )
 
-func createPatch(spec corev1.PodSpec) []patchOperation {
+func createPatch(config agentConfig, spec corev1.PodSpec) []patchOperation {
 	// Create patch operations
 	var patches []patchOperation
+
+	envVariables := generateEnvironmentVariables(config)
 
 	// Add a volume mount to the pod
 	patches = append(patches, createVolumePatch(spec.Volumes == nil))
@@ -50,9 +37,26 @@ func createPatch(spec corev1.PodSpec) []patchOperation {
 	containers := spec.Containers
 	for index, container := range containers {
 		patches = append(patches, createVolumeMountsPatch(container.VolumeMounts == nil, index))
-		patches = append(patches, createEnvVariablesPatches(container.Env == nil, index)...)
+		patches = append(patches, createEnvVariablesPatches(envVariables, container.Env == nil, index)...)
 	}
 	return patches
+}
+
+func generateEnvironmentVariables(config agentConfig) []corev1.EnvVar {
+	vars := make([]corev1.EnvVar, 1, len(config.environment)+1)
+	vars[0] = corev1.EnvVar{
+		Name: "ELASTIC_APM_SECRET_TOKEN",
+		ValueFrom: &corev1.EnvVarSource{
+			SecretKeyRef: &corev1.SecretKeySelector{
+				LocalObjectReference: corev1.LocalObjectReference{Name: "apm-server-apm-token"},
+				Key:                  "secret-token",
+			},
+		},
+	}
+	for name, value := range config.environment {
+		vars = append(vars, corev1.EnvVar{Name: name, Value: value})
+	}
+	return vars
 }
 
 func createVolumePatch(createArray bool) patchOperation {
@@ -103,14 +107,15 @@ func createInitContainerPatch(createArray bool) patchOperation {
 
 // If the evn variable array does not already exist, this method will return a single patch operation for the addition of the entire list,
 // otherwise it would return a list of patches for each env variable
-func createEnvVariablesPatches(createArray bool, index int) []patchOperation {
+func createEnvVariablesPatches(envVariables []corev1.EnvVar, createArray bool, index int) []patchOperation {
 	containerIndex := strconv.Itoa(index)
 	envVariablesPath := "/spec/containers/" + containerIndex + "/env"
 	var patches []patchOperation
 	if createArray {
 		patches = []patchOperation{{
-			Op:    "add",
-			Path:  envVariablesPath,
+			Op:   "add",
+			Path: envVariablesPath,
+			// TODO: Store this in the config
 			Value: envVariables,
 		}}
 	} else {

@@ -175,9 +175,11 @@ agents:
   java:
     container: docker.com/elastic/agent-java:1.2.3
     environment:
-      SOME_VAR1: value1
-      SOME_VAR2: value2
-      SOME_VAR2: value3
+      ELASTIC_APM_SERVER_URLS: "http://34.78.173.219:8200"
+      ELASTIC_APM_SERVICE_NAME: "petclinic"
+      ELASTIC_APM_ENVIRONMENT: "test"
+      ELASTIC_APM_LOG_LEVEL: "debug"
+      ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED: "true"
   node: # no environment, run with defaults
     container: docker.com/elastic/agent-node:1.2.3
 ```
