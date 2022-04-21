@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -71,14 +70,23 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	mutated, err := s.mutate(body)
-	if err != nil {
+	admReview := admissionv1.AdmissionReview{}
+	if err := json.Unmarshal(body, &admReview); err != nil {
 		sendError(err, w)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	w.Write(mutated)
+	if err := s.mutate(&admReview); err != nil {
+		sendError(err, w)
+		return
+	}
+
+	resp, err := json.Marshal(admReview)
+	if err != nil {
+		sendError(err, w)
+		return
+	}
+	w.Write(resp)
 }
 
 func sendError(err error, w http.ResponseWriter) {
@@ -90,75 +98,83 @@ func sendError(err error, w http.ResponseWriter) {
 // TODO:
 // - check for annotation
 // - apply correct environment variables based on annotation value
-func (s *server) mutate(body []byte) ([]byte, error) {
-	admReview := admissionv1.AdmissionReview{}
-	if err := json.Unmarshal(body, &admReview); err != nil {
-		return nil, fmt.Errorf("unmarshaling request failed with %s", err)
-	}
-
-	var err error
+// - handle: return an AdmissionReview
+// - mutate: return an AdmissionResponse
+func (s *server) mutate(admReview *admissionv1.AdmissionReview) error {
 	var pod *corev1.Pod
 
-	responseBody := []byte{}
 	ar := admReview.Request
 	resp := admissionv1.AdmissionResponse{}
 
-	if ar != nil {
-		if err := json.Unmarshal(ar.Object.Raw, &pod); err != nil {
-			return nil, fmt.Errorf("unable unmarshal pod json object %v", err)
-		}
-
-		annotations := pod.ObjectMeta.GetAnnotations()
-		if annotations == nil {
-			return nil, errors.New("no annotations present")
-		}
-		// TODO: Do we want to support multiple comma-separated agents?
-		agent, ok := annotations[apmAnnotation]
-		if !ok {
-			return nil, errors.New("missing annotation `elastic-apm-agent`")
-		}
-		// TODO: validate the config has a container field
-		config, ok := s.c[agent]
-		if !ok {
-			return nil, fmt.Errorf("no config for agent `%s`", agent)
-		}
-		// TODO: Use the config to mutate the container.
-		_ = config
-
-		resp.Allowed = true
-		resp.UID = ar.UID
-		pT := admissionv1.PatchTypeJSONPatch
-		resp.PatchType = &pT
-
-		spec := pod.Spec
-
-		// Create patch operations
-		var patches []patchOperation
-
-		// Add a volume mount to the pod
-		patches = append(patches, createVolumePatch(spec.Volumes == nil))
-
-		// Add an init container, that will fetch the agent Docker image and extract the agent jar to the agent volume
-		patches = append(patches, createInitContainerPatch(spec.InitContainers == nil))
-
-		// Add agent env variables for each container at the pod, as well as the volume mount
-		containers := spec.Containers
-		for index, container := range containers {
-			patches = append(patches, createVolumeMountsPatch(container.VolumeMounts == nil, index))
-			patches = append(patches, createEnvVariablesPatches(container.Env == nil, index)...)
-		}
-
-		resp.Patch, err = json.Marshal(patches)
-		resp.Result = &metav1.Status{
-			Status: "Success",
-		}
-
-		admReview.Response = &resp
-		responseBody, err = json.Marshal(admReview)
-		if err != nil {
-			return nil, err
-		}
+	if ar == nil {
+		// TODO: Is this right?
+		return nil
 	}
 
-	return responseBody, nil
+	if err := json.Unmarshal(ar.Object.Raw, &pod); err != nil {
+		return fmt.Errorf("unable unmarshal pod json object %v", err)
+	}
+
+	resp.Allowed = true
+	resp.UID = ar.UID
+
+	result := new(metav1.Status)
+	annotations := pod.ObjectMeta.GetAnnotations()
+	if annotations == nil {
+		result.Message = "no annotations present"
+		resp.Result = result
+		admReview.Response = &resp
+		return nil
+	}
+	// TODO: Do we want to support multiple comma-separated agents?
+	agent, ok := annotations[apmAnnotation]
+	if !ok {
+		result.Message = "missing annotation `elastic-apm-agent`"
+		resp.Result = result
+		admReview.Response = &resp
+		return nil
+	}
+	// TODO: validate the config has a container field
+	config, ok := s.c[agent]
+	if !ok {
+		result.Message = fmt.Sprintf("no config for agent `%s`", agent)
+		resp.Result = result
+		admReview.Response = &resp
+		return nil
+	}
+	// TODO: Use the config to mutate the container.
+	_ = config
+
+	pT := admissionv1.PatchTypeJSONPatch
+	resp.PatchType = &pT
+
+	spec := pod.Spec
+
+	// Create patch operations
+	var patches []patchOperation
+
+	// Add a volume mount to the pod
+	patches = append(patches, createVolumePatch(spec.Volumes == nil))
+
+	// Add an init container, that will fetch the agent Docker image and extract the agent jar to the agent volume
+	patches = append(patches, createInitContainerPatch(spec.InitContainers == nil))
+
+	// Add agent env variables for each container at the pod, as well as the volume mount
+	containers := spec.Containers
+	for index, container := range containers {
+		patches = append(patches, createVolumeMountsPatch(container.VolumeMounts == nil, index))
+		patches = append(patches, createEnvVariablesPatches(container.Env == nil, index)...)
+	}
+	patch, err := json.Marshal(patches)
+	if err != nil {
+		return err
+	}
+	resp.Patch = patch
+
+	resp.Result = &metav1.Status{
+		Status: "Success",
+	}
+
+	admReview.Response = &resp
+	return nil
 }
