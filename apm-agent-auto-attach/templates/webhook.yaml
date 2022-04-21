@@ -113,9 +113,13 @@ spec:
           # args:
           #   - -certFile={{ .Values.certPath }}/{{ .Values.certFile }}
           #   - -keyFile={{ .Values.certPath }}/{{ .Values.keyFile }}
+          #   - -config=/opt/webhook/config/webhook.yaml
           volumeMounts:
             - name: {{ .Release.Name }}-certs
               mountPath: {{ .Values.certPath }}
+              readOnly: true
+            - name: config
+              mountPath: /opt/webhook/config
               readOnly: true
           ports:
             - name: https
@@ -125,6 +129,26 @@ spec:
         - name: {{ .Release.Name }}-certs
           secret:
             secretName: {{ include "certs.secret.name" . }}
+        - name: config
+          configMap:
+            name: webhook-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: webhook-config
+  namespace: {{ .Release.Namespace}}
+data:
+  webhook.yaml: |
+    agents:
+      java:
+        image: docker.elastic.co/observability/apm-agent-java:1.23.0
+        environment:
+          ELASTIC_APM_SERVER_URLS: "http://34.78.173.219:8200"
+          ELASTIC_APM_SERVICE_NAME: "petclinic"
+          ELASTIC_APM_ENVIRONMENT: "test"
+          ELASTIC_APM_LOG_LEVEL: "debug"
+          ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED: "true"
 ---
 apiVersion: v1
 kind: Service
