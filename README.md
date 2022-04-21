@@ -57,8 +57,8 @@ make changes to the helm chart, and then you can install/upgrade it in the
 cluster:
 
 ```
-helm install webhook apm-agent-auto-attach/
-helm upgrade webhook apm-agent-auto-attach/
+helm upgrade -i webhook apm-agent-auto-attach/ --namespace=elastic-apm --create-namespace
+helm uninstall webhook --namespace=elastic-apm
 ```
 
 ## webhook
