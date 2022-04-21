@@ -29,7 +29,7 @@ func main() {
 		l: log.Default(),
 		c: map[string]agentConfig{
 			"java": agentConfig{
-				container: "stuartnelson3/agent-container",
+				image: "docker.elastic.co/observability/apm-agent-java:1.23.0",
 				environment: map[string]string{
 					"ELASTIC_APM_SERVER_URLS":                      "http://34.78.173.219:8200",
 					"ELASTIC_APM_SERVICE_NAME":                     "petclinic",
@@ -58,7 +58,7 @@ type server struct {
 
 // TODO: Add parsing
 type agentConfig struct {
-	container   string
+	image       string
 	environment map[string]string
 }
 

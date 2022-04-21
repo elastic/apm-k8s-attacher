@@ -7,9 +7,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-func TestConfig(t *testing.T) {
+func TestEnvVarPatch(t *testing.T) {
 	config := agentConfig{
-		container:   "stuartnelson3/agent-container",
 		environment: map[string]string{"SANITY_CHECK": "true"},
 	}
 	vars := generateEnvironmentVariables(config)
@@ -19,4 +18,17 @@ func TestConfig(t *testing.T) {
 	assert.Len(t, environmentVariables, 2)
 	assert.Equal(t, "ELASTIC_APM_SECRET_TOKEN", environmentVariables[0].Name)
 	assert.Equal(t, "SANITY_CHECK", environmentVariables[1].Name)
+}
+
+func TestInitContainerPatch(t *testing.T) {
+	config := agentConfig{
+		image: "stuartnelson3/agent-image:1.2.3",
+	}
+	patch := createInitContainerPatch(config, true)
+	initContainers := patch.Value.([]corev1.Container)
+	assert.Len(t, initContainers, 1)
+	ic := initContainers[0]
+	assert.Equal(t, ic.Name, "agent-image")
+	assert.Equal(t, ic.Image, config.image)
+	assert.NotEmpty(t, ic.VolumeMounts)
 }

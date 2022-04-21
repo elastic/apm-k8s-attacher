@@ -1,7 +1,9 @@
 package main
 
 import (
+	"path/filepath"
 	"strconv"
+	"strings"
 
 	corev1 "k8s.io/api/core/v1"
 )
@@ -14,12 +16,15 @@ type patchOperation struct {
 	Value interface{} `json:"value,omitempty"`
 }
 
-const volumeName = "elastic-apm-agent"
+const (
+	volumeName = "elastic-apm-agent"
+	mountPath  = "/elastic/apm/agent"
+)
 
 var (
 	volumeMounts = corev1.VolumeMount{
 		Name:      volumeName,
-		MountPath: "/elastic/apm/agent",
+		MountPath: mountPath,
 	}
 	agentVolume = corev1.Volume{
 		Name:         volumeName,
@@ -37,7 +42,7 @@ func createPatch(config agentConfig, spec corev1.PodSpec) []patchOperation {
 	patches = append(patches, createVolumePatch(spec.Volumes == nil))
 
 	// Add an init container, that will fetch the agent Docker image and extract the agent jar to the agent volume
-	patches = append(patches, createInitContainerPatch(spec.InitContainers == nil))
+	patches = append(patches, createInitContainerPatch(config, spec.InitContainers == nil))
 
 	// Add agent env variables for each container at the pod, as well as the volume mount
 	containers := spec.Containers
@@ -83,12 +88,15 @@ func createVolumePatch(createArray bool) patchOperation {
 	return patch
 }
 
-func createInitContainerPatch(createArray bool) patchOperation {
+func createInitContainerPatch(config agentConfig, createArray bool) patchOperation {
+	bp := filepath.Base(config.image)
+	name := strings.Split(bp, ":")
 	agentInitContainer := corev1.Container{
-		Name:         "elastic-java-agent",
-		Image:        "docker.elastic.co/observability/apm-agent-java:1.23.0",
+		Name:         name[0],
+		Image:        config.image,
 		VolumeMounts: []corev1.VolumeMount{volumeMounts},
-		Command:      []string{"cp", "-v", "/usr/agent/elastic-apm-agent.jar", "/elastic/apm/agent"},
+		// TODO: should this be a default, and then users can modify it *if needed*?
+		Command: []string{"cp", "-v", "/usr/agent/elastic-apm-agent.jar", mountPath},
 	}
 	var patch patchOperation
 	if createArray {
