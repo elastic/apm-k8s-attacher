@@ -181,3 +181,33 @@ agents:
   node: # no environment, run with defaults
     container: docker.com/elastic/agent-node:1.2.3
 ```
+
+# maybe we should just use the expedia webhook
+
+I'm in a bit of a conundrum. So, we can develop our own helm charts and webhook and all this stuff. Or, I'm reasonably sure we could fork https://github.com/ExpediaGroup/kubernetes-sidecar-injector, and then we just need to add the code to take the volume defined in a configmap and update the customers' running containers to mount that, a la https://github.com/eyalkoren/k8s-tracing-webhook/blob/adfba08352c4dc397838446bef49a5a1ec08ba81/webhook/admission_logic.go#L181-L184
+
+to explain a bit better:
+the expedia webhook works out of the box (tested in just now), where you add an annotation to a pod spec, and then when the pod starts, the webhook looks for a configmap defined by the annotation and injects that into the running pod.
+
+For example, you have a podspec for my-uninstrumented-pod, it has an annotation pointing to the following configmap:
+```
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-app-sidecar
+  namespace: {{ .Release.Namespace }}
+data:
+  sidecars.yaml: |
+    - name: busybox
+      initContainers:
+        - name: busybox
+          image: busybox
+          command: [ "/bin/sh" ]
+          args: [ "-c", "echo '<html><h1>Hi!</h1><html>' >> /work-dir/index.html" ]
+          volumeMounts:
+            - name: workdir
+              mountPath: "/work-dir"
+```
+all of the config within sidecars.yaml gets injected into the running pod: containers, init containers, volumes. The only part where this currently doesn't work for our purpose is adding the volumeMount and environment variables to the original my-uninstrumented-pod.
+
+So
