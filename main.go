@@ -13,18 +13,13 @@ import (
 	admissionv1 "k8s.io/api/admission/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/serializer"
 )
 
 func main() {
 	var (
-		runtimeScheme = runtime.NewScheme()
-		codecs        = serializer.NewCodecFactory(runtimeScheme)
-		deserializer  = codecs.UniversalDeserializer()
-		certPath      = flag.String("certFile", "/opt/webhook/certs/cert.pem", "path to cert.pem")
-		keyPath       = flag.String("keyFile", "/opt/webhook/certs/key.pem", "path to key.pem")
-		configPath    = flag.String("config", "/opt/webhook/config/webhook.yaml", "path to config.yaml")
+		certPath   = flag.String("certFile", "/opt/webhook/certs/cert.pem", "path to cert.pem")
+		keyPath    = flag.String("keyFile", "/opt/webhook/certs/key.pem", "path to key.pem")
+		configPath = flag.String("config", "/opt/webhook/config/webhook.yaml", "path to config.yaml")
 	)
 	flag.Parse()
 
@@ -34,7 +29,6 @@ func main() {
 	}
 
 	ss := &server{
-		d: deserializer,
 		l: log.Default(),
 		c: cfg.Agents,
 	}
@@ -58,7 +52,6 @@ func parseConfig(configPath string) (*config, error) {
 }
 
 type server struct {
-	d runtime.Decoder
 	l *log.Logger
 	c map[string]agentConfig
 }
