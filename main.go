@@ -7,7 +7,9 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 
+	"gopkg.in/yaml.v3"
 	admissionv1 "k8s.io/api/admission/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -22,32 +24,37 @@ func main() {
 		deserializer  = codecs.UniversalDeserializer()
 		certPath      = flag.String("certFile", "/opt/webhook/certs/cert.pem", "path to cert.pem")
 		keyPath       = flag.String("keyFile", "/opt/webhook/certs/key.pem", "path to key.pem")
+		configPath    = flag.String("config", "/opt/webhook/config/config.yaml", "path to config.yaml")
 	)
 	flag.Parse()
+
+	cfg, err := parseConfig(*configPath)
+	if err != nil {
+		log.Fatalf("error reading config: %v", err)
+	}
+
 	ss := &server{
 		d: deserializer,
 		l: log.Default(),
-		c: map[string]agentConfig{
-			"java": agentConfig{
-				Image: "docker.elastic.co/observability/apm-agent-java:1.23.0",
-				Environment: map[string]string{
-					"ELASTIC_APM_SERVER_URLS":                      "http://34.78.173.219:8200",
-					"ELASTIC_APM_SERVICE_NAME":                     "petclinic",
-					"ELASTIC_APM_ENVIRONMENT":                      "test",
-					"ELASTIC_APM_LOG_LEVEL":                        "debug",
-					"ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED": "true",
-					"JAVA_TOOL_OPTIONS":                            "-javaagent:/elastic/apm/agent/elastic-apm-agent.jar",
-				},
-			},
-		},
+		c: cfg.Agents,
 	}
-	_ = ss
 	s := &http.Server{
 		Addr:    ":8443",
 		Handler: ss,
 	}
 	log.Println("listening on :8443")
 	log.Fatal(s.ListenAndServeTLS(*certPath, *keyPath))
+}
+
+func parseConfig(configPath string) (*config, error) {
+	f, err := os.Open(configPath)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	c := new(config)
+	return c, yaml.NewDecoder(f).Decode(c)
 }
 
 type server struct {
