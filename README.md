@@ -1,3 +1,18 @@
+# demo
+
+```
+# create cluster
+kind create cluster --config kind.yaml
+# install helm chart
+helm upgrade -i webhook apm-agent-auto-attach/ --namespace=elastic-apm --create-namespace
+# add deploy with annotation
+./example_deploy.sh
+# query for pod name
+pod=$(kubectl get -o name pods | grep annotation)
+# verify it has been mutated (environment, volume)
+kubectl describe $pod
+```
+
 # installing kubectl and KinD
 
 kubectl: https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
