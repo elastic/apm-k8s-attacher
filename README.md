@@ -34,6 +34,12 @@ The user can inject their own custom config for the mutating webhook:
 helm upgrade -i webhook apm-agent-auto-attach/ --namespace=elastic-apm --create-namespace -f custom.yaml
 ```
 
+The annotation looked for on a pod is `elastic-apm-agent`. The value indicates
+which image+environment variables to inject into the pod. eg., `java` would
+inject the java image + environment variables, `node` would inject the node
+image + environment variables. the actual value is unimportant, it's just the
+config that it contains that matters.
+
 the user also needs to define `apm.token`. This can be written in either the
 `custom.yaml` file, or applied via `--set apm.token=$MY_TOKEN` when running
 `helm`.
