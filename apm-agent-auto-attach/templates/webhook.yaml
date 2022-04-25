@@ -37,7 +37,8 @@ metadata:
   name: apm-server-apm-token
   namespace: {{ .Values.apm.namespace }}
 data:
-  secret-token: {{ b64enc .Values.apm.token }}
+  # TODO: Make this a required value.
+  secret-token: {{ required "APM Secret token is required" .Values.apm.token | b64enc }}
 ---
 # TODO: Updating this breaks old running webhook pods. Figure out how to
 # auto-restart them.

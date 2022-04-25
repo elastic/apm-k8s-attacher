@@ -10,7 +10,7 @@ keyFile: key.pem
 apm:
   # how do users get to this? secrets are namespace bound
   namespace: default
-  token: abc123 # TODO: Make this a required variable
+  token:
 
 replicaCount: 1
 
