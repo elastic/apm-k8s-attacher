@@ -13,6 +13,31 @@ pod=$(kubectl get -o name pods | grep annotation)
 kubectl describe $pod
 ```
 
+setting a custom webhook config:
+
+Given a file `custom.yaml`:
+```yaml
+webhookConfig:
+  agents:
+    java:
+      image: docker.elastic.co/observability/apm-agent-java:1.23.0
+      environment:
+        ELASTIC_APM_SERVER_URLS: "http://34.78.173.219:8200"
+        ELASTIC_APM_SERVICE_NAME: "custom"
+        ELASTIC_APM_ENVIRONMENT: "dev"
+        ELASTIC_APM_LOG_LEVEL: "debug"
+        ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED: "true"
+```
+
+The user can inject their own custom config for the mutating webhook:
+```
+helm upgrade -i webhook apm-agent-auto-attach/ --namespace=elastic-apm --create-namespace -f custom.yaml
+```
+
+the user also needs to define `apm.token`. This can be written in either the
+`custom.yaml` file, or applied via `--set apm.token=$MY_TOKEN` when running
+`helm`.
+
 # installing kubectl and KinD
 
 kubectl: https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
