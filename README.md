@@ -74,9 +74,12 @@ from `backend2`, and `backend1-dev` might have a different apm environment from
 `backend1-prod`.
 
 Note: Right now, we can only specify a single secret token to be injected for
-interacting with the apm-server. Coming up with a way to configure this so that
-a token can be related to a specific apm-server might take some additional
-thought.
+interacting with the apm-server, which means a single webhook deploy can only
+configure pods to one apm-server. A user can install multiple versions of the
+helm chart, however, with different apm-server/secret-token combinations, and
+have different values for the agent configs. Coming up with a way to configure
+this so that a token can be related to a specific apm-server might take some
+additional thought.
 
 Open questions:
 - How do we configure the command for moving the agent artifact into the shared
@@ -178,9 +181,7 @@ to deploy a simple echo server:
 it already has the correct annotation. you can check that it's been configured
 correctly by the webhook using `kubectl`.
 
-# old notes that probably are no longer relevant
-
-## notes
+# notes
 
 Links:
 - apm-server issue: https://github.com/elastic/apm-server/issues/7386
