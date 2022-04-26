@@ -70,31 +70,31 @@ const apmAnnotation = "elastic-apm-agent"
 func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		sendError(err, w)
+		s.sendError(err, w)
 		return
 	}
 
 	admReview := admissionv1.AdmissionReview{}
 	if err := json.Unmarshal(body, &admReview); err != nil {
-		sendError(err, w)
+		s.sendError(err, w)
 		return
 	}
 
 	if err := s.mutate(&admReview); err != nil {
-		sendError(err, w)
+		s.sendError(err, w)
 		return
 	}
 
 	resp, err := json.Marshal(admReview)
 	if err != nil {
-		sendError(err, w)
+		s.sendError(err, w)
 		return
 	}
 	w.Write(resp)
 }
 
-func sendError(err error, w http.ResponseWriter) {
-	log.Println(err)
+func (s *server) sendError(err error, w http.ResponseWriter) {
+	s.l.Println(err)
 	w.WriteHeader(http.StatusInternalServerError)
 	fmt.Fprintf(w, "%s", err)
 }
