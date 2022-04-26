@@ -13,6 +13,8 @@ pod=$(kubectl get -o name pods | grep annotation)
 kubectl describe $pod
 ```
 
+asciinema: https://asciinema.org/a/WD1MNxxwNSnRMxxZqxjMoJtzk
+
 setting a custom webhook config:
 
 Given a file `custom.yaml`:
