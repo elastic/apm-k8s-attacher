@@ -1,9 +1,6 @@
 APPNAME?=webhook
 AGENT?=agent-container
 
-$(APPNAME).pem $(APPNAME).key:
-	./gen-cert.sh $(APPNAME)
-
 .webhook: *.go Dockerfile.webhook $(APPNAME).pem $(APPNAME).key
 	docker build -f Dockerfile.webhook -t stuartnelson3/$(APPNAME) .
 	touch $@
