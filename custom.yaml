@@ -1,6 +1,9 @@
+apm:
+  token: abc123
 webhookConfig:
   agents:
     java:
+      artifact: "/usr/agent/elastic-apm-agent.jar"
       image: docker.elastic.co/observability/apm-agent-java:1.23.0
       environment:
         ELASTIC_APM_SERVER_URLS: "http://34.78.173.219:8200"
@@ -8,3 +11,4 @@ webhookConfig:
         ELASTIC_APM_ENVIRONMENT: "dev"
         ELASTIC_APM_LOG_LEVEL: "debug"
         ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED: "true"
+        JAVA_TOOL_OPTIONS: "-javaagent:/elastic/apm/agent/elastic-apm-agent.jar"

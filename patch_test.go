@@ -22,7 +22,8 @@ func TestEnvVarPatch(t *testing.T) {
 
 func TestInitContainerPatch(t *testing.T) {
 	config := agentConfig{
-		Image: "stuartnelson3/agent-image:1.2.3",
+		Image:        "stuartnelson3/agent-image:1.2.3",
+		ArtifactPath: "/tmp/artifact.jar",
 	}
 	patch := createInitContainerPatch(config, true)
 	initContainers := patch.Value.([]corev1.Container)
@@ -30,5 +31,6 @@ func TestInitContainerPatch(t *testing.T) {
 	ic := initContainers[0]
 	assert.Equal(t, ic.Name, "agent-image")
 	assert.Equal(t, ic.Image, config.Image)
+	assert.Equal(t, ic.Command, []string{"cp", "-v", config.ArtifactPath, mountPath})
 	assert.NotEmpty(t, ic.VolumeMounts)
 }

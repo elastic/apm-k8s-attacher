@@ -27,6 +27,7 @@ webhookConfig:
         ELASTIC_APM_ENVIRONMENT: "dev"
         ELASTIC_APM_LOG_LEVEL: "debug"
         ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED: "true"
+        JAVA_TOOL_OPTIONS: "-javaagent:/elastic/apm/agent/elastic-apm-agent.jar"
 ```
 
 The user can inject their own custom config for the mutating webhook:
@@ -55,12 +56,14 @@ default for, right?
 agents:
   java:
     image: docker.com/elastic/agent-java:1.2.3
+    artifact: "/usr/agent/elastic-apm-agent.jar"
     environment:
       ELASTIC_APM_SERVER_URLS: "http://34.78.173.219:8200"
       ELASTIC_APM_SERVICE_NAME: "petclinic"
       ELASTIC_APM_ENVIRONMENT: "test"
       ELASTIC_APM_LOG_LEVEL: "debug"
       ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED: "true"
+      JAVA_TOOL_OPTIONS: "-javaagent:/elastic/apm/agent/elastic-apm-agent.jar"
   node: # no environment, run with defaults
     image: docker.com/elastic/agent-node:1.2.3
 ```
@@ -69,6 +72,22 @@ Using the annotation value allows users to set custom environment variables and
 images per deploy. For example, `backend1` might have a different service name
 from `backend2`, and `backend1-dev` might have a different apm environment from
 `backend1-prod`.
+
+Note: Right now, we can only specify a single secret token to be injected for
+interacting with the apm-server. Coming up with a way to configure this so that
+a token can be related to a specific apm-server might take some additional
+thought.
+
+Open questions:
+- How do we configure the command for moving the agent artifact into the shared
+  volume? Right now it's using `artifact` (see example config above) to know
+  the location, and then copying it to the non-configurable
+  `/elastic/apm/agent/$ARTIFACT` within the shared volume in the pod.
+- Currently the artifact location (see `JAVA_TOOL_OPTIONS` above) is hardcoded
+  within `patch.go`. The `JAVA_TOOL_OPTIONS` environment variable depends on a
+  constant within the code; how can we prevent a user from configuring this
+  incorrectly? Or is this something we "supply" in a default config and hope
+  they don't mess with it?
 
 # installing kubectl and KinD
 

@@ -61,8 +61,9 @@ type config struct {
 }
 
 type agentConfig struct {
-	Image       string            `yaml:"image"`
-	Environment map[string]string `yaml:"environment"`
+	Image        string            `yaml:"image"`
+	Environment  map[string]string `yaml:"environment"`
+	ArtifactPath string            `yaml:"artifact"`
 }
 
 const apmAnnotation = "elastic-apm-agent"
