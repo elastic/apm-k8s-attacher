@@ -99,9 +99,6 @@ func sendError(err error, w http.ResponseWriter) {
 	fmt.Fprintf(w, "%s", err)
 }
 
-// TODO:
-// - check for annotation
-// - apply correct environment variables based on annotation value
 func (s *server) mutate(admReview *admissionv1.AdmissionReview) error {
 	var pod *corev1.Pod
 
