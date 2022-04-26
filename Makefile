@@ -1,5 +1,6 @@
+REPO?=stuartnelson3
 APPNAME?=webhook
 
-.webhook: *.go Dockerfile.webhook
-	docker build -f Dockerfile.webhook -t stuartnelson3/$(APPNAME) .
+.webhook: *.go Dockerfile
+	docker build -f Dockerfile -t $(REPO)/$(APPNAME) .
 	touch $@
