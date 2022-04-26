@@ -1,10 +1,5 @@
 APPNAME?=webhook
-AGENT?=agent-container
 
-.webhook: *.go Dockerfile.webhook $(APPNAME).pem $(APPNAME).key
+.webhook: *.go Dockerfile.webhook
 	docker build -f Dockerfile.webhook -t stuartnelson3/$(APPNAME) .
-	touch $@
-
-.agent: Dockerfile.agent
-	docker build -f Dockerfile.agent -t stuartnelson3/$(AGENT) .
 	touch $@
