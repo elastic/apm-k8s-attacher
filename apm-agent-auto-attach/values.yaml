@@ -4,7 +4,6 @@ image:
   pullPolicy: Always
   pullSecrets: []
 
-certPath: /opt/webhook/certs
 certFile: cert.pem
 keyFile: key.pem
 apm:

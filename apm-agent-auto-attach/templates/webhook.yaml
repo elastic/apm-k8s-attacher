@@ -112,12 +112,12 @@ spec:
           # TODO: Why does the OCI runtime fail on these not being available?
           # is there some timing thing with the mount?
           args:
-            - -certFile={{ .Values.certPath }}/{{ .Values.certFile }}
-            - -keyFile={{ .Values.certPath }}/{{ .Values.keyFile }}
+            - -certFile=/opt/webhook/certs/{{ .Values.certFile }}
+            - -keyFile=/opt/webhook/certs/{{ .Values.keyFile }}
             - -config=/opt/webhook/config/webhook.yaml
           volumeMounts:
             - name: {{ .Release.Name }}-certs
-              mountPath: {{ .Values.certPath }}
+              mountPath: /opt/webhook/certs
               readOnly: true
             - name: config
               mountPath: /opt/webhook/config
