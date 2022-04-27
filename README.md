@@ -13,15 +13,15 @@ webhook, and a helmchart for the webhook.
 - well-defined paths for agent artifacts in containers
 - current version of agent containers as defaults
 - @felix connects with OPA team to discuss their strategy and our strategy
-- add "why helm" doc
 - move all these to issues on github
 - update repo perms
-- initial demo presentation https://drive.google.com/drive/folders/18TMg1AQ0xcIddPGmR3Ty76ODDwukmTai
 - security audit
 - k8s audit
 - set up deployment infra (build + release container)
 
 # demo
+
+A recording of this demo is available [here](https://drive.google.com/drive/folders/18TMg1AQ0xcIddPGmR3Ty76ODDwukmTai).
 
 ```
 # create cluster
