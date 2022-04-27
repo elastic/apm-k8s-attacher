@@ -5,19 +5,9 @@ webhook, and a helmchart for the webhook.
 
 # todo
 
-- inject kubernetes environment variables via downward API (https://www.elastic.co/guide/en/apm/guide/current/api-metadata.html#api-kubernetes-data)
-- auto-discovery of apm-server
-- publish "official" container image to elastic docker hub
-- default + customizable webhook configuration
-- configure a regex matcher on container image name that applies the same agentConfig
-- well-defined paths for agent artifacts in containers
-- current version of agent containers as defaults
 - @felix connects with OPA team to discuss their strategy and our strategy
-- move all these to issues on github
-- update repo perms
-- security audit
-- k8s audit
-- set up deployment infra (build + release container)
+- schedule a security audit
+- schedule a k8s audit
 
 # demo
 
