@@ -1,3 +1,26 @@
+# apm mutating webhook
+
+This is the repo for apm mutating webhook for kubernetes. It contains both the
+webhook, and a helmchart for the webhook.
+
+# todo
+
+- inject kubernetes environment variables via downward API (https://www.elastic.co/guide/en/apm/guide/current/api-metadata.html#api-kubernetes-data)
+- auto-discovery of apm-server
+- publish "official" container image to elastic docker hub
+- default + customizable webhook configuration
+- configure a regex matcher on container image name that applies the same agentConfig
+- well-defined paths for agent artifacts in containers
+- current version of agent containers as defaults
+- @felix connects with OPA team to discuss their strategy and our strategy
+- add "why helm" doc
+- move all these to issues on github
+- update repo perms
+- initial demo presentation https://drive.google.com/drive/folders/18TMg1AQ0xcIddPGmR3Ty76ODDwukmTai
+- security audit
+- k8s audit
+- set up deployment infra (build + release container)
+
 # demo
 
 ```
