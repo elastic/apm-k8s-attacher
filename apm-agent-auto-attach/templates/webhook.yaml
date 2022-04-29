@@ -109,8 +109,6 @@ spec:
         - name: {{ .Release.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          # TODO: Why does the OCI runtime fail on these not being available?
-          # is there some timing thing with the mount?
           args:
             - -certFile=/opt/webhook/certs/{{ .Values.certFile }}
             - -keyFile=/opt/webhook/certs/{{ .Values.keyFile }}

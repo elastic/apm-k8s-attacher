@@ -41,10 +41,12 @@ func createPatch(config agentConfig, spec corev1.PodSpec) []patchOperation {
 	// Add a volume mount to the pod
 	patches = append(patches, createVolumePatch(spec.Volumes == nil))
 
-	// Add an init container, that will fetch the agent Docker image and extract the agent jar to the agent volume
+	// Add an init container, that will fetch the agent Docker image and
+	// extract the agent jar to the agent volume
 	patches = append(patches, createInitContainerPatch(config, spec.InitContainers == nil))
 
-	// Add agent env variables for each container at the pod, as well as the volume mount
+	// Add agent env variables for each container at the pod, as well as
+	// the volume mount
 	containers := spec.Containers
 	for index, container := range containers {
 		patches = append(patches, createVolumeMountsPatch(container.VolumeMounts == nil, index))
@@ -95,7 +97,8 @@ func createInitContainerPatch(config agentConfig, createArray bool) patchOperati
 		Name:         name[0],
 		Image:        config.Image,
 		VolumeMounts: []corev1.VolumeMount{volumeMounts},
-		// TODO: should this be a default, and then users can modify it *if needed*?
+		// TODO: should this be a default, and then users can modify it
+		// *if needed*?
 		Command: []string{"cp", "-v", config.ArtifactPath, mountPath},
 	}
 	var patch patchOperation
@@ -115,17 +118,17 @@ func createInitContainerPatch(config agentConfig, createArray bool) patchOperati
 	return patch
 }
 
-// If the evn variable array does not already exist, this method will return a single patch operation for the addition of the entire list,
-// otherwise it would return a list of patches for each env variable
+// If the env variable array does not already exist, this method will return a
+// single patch operation for the addition of the entire list, otherwise it
+// would return a list of patches for each env variable
 func createEnvVariablesPatches(envVariables []corev1.EnvVar, createArray bool, index int) []patchOperation {
 	containerIndex := strconv.Itoa(index)
 	envVariablesPath := "/spec/containers/" + containerIndex + "/env"
 	var patches []patchOperation
 	if createArray {
 		patches = []patchOperation{{
-			Op:   "add",
-			Path: envVariablesPath,
-			// TODO: Store this in the config
+			Op:    "add",
+			Path:  envVariablesPath,
 			Value: envVariables,
 		}}
 	} else {
