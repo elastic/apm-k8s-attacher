@@ -39,9 +39,6 @@ metadata:
 data:
   secret-token: {{ required "APM Secret token is required" .Values.apm.token | b64enc }}
 ---
-# TODO: Updating this breaks old running webhook pods. Figure out how to
-# auto-restart them.
-# https://stackoverflow.com/questions/58505426/helm-hook-to-run-kubectl-command
 apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:

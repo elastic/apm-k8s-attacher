@@ -107,22 +107,57 @@ Open questions:
   incorrectly? Or is this something we "supply" in a default config and hope
   they don't mess with it?
 
-# installing kubectl and KinD
+# dev dependencies
 
-kubectl: https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
+webhook:
+- golang
+
+helmchart:
+- kubectl
+- kind
+- helm
+- skaffold
+- docker
+
+## kubectl
+
+https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
 
 ```
-curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-chmod +x kubectl
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
+  sudo install kubectl
 ```
 
-kind: https://kind.sigs.k8s.io/docs/user/quick-start/
+## kind
+
+https://kind.sigs.k8s.io/docs/user/quick-start/
 
 ```
-curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.12.0/kind-linux-amd64
-chmod +x ./kind
-mv ./kind /some-dir-in-your-PATH/kind
+curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.12.0/kind-linux-amd64 && \
+  sudo install kind
 ```
+
+## helm
+
+https://github.com/helm/helm/releases
+
+## skaffold
+
+skaffold:
+```
+curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64 && \
+  sudo install skaffold /usr/local/bin/
+```
+
+# dev workflow
+
+## webhook
+
+Do your normal go development in the top-level *.go files of this repo.
+
+## helmchart
+
+start the local kubernetes cluster using `kind`:
 
 ```
 kind create cluster --config kind.yaml
@@ -131,6 +166,36 @@ kind create cluster --config kind.yaml
 a config is created at `~/.kube/config`, which is already set to communicate
 with the cluster. if using two clusters, cf.:
 https://kind.sigs.k8s.io/docs/user/quick-start/#interacting-with-your-cluster
+
+`skaffold` manages installing, updating, and removing the helmchart.
+
+start the watcher in a separate terminal with `skaffold dev`. this watches for
+changes the files within the helmchart, the Dockerfile, and any file
+dependencies specified by the Dockerfile. A change will trigger an update
+within the kubernetes cluster.
+
+## debugging
+
+docker exec into the running KinD node
+From there, the pod network is exposed on the host, ie.
+
+```
+docker exec -it <kind container id> bash
+kubectl get pods -o wide
+# note the ip addr
+curl 10.244.0.16:5678
+```
+
+## deploying the example container
+
+to deploy a simple echo server:
+
+```
+./example_deploy.sh
+```
+
+it already has the correct annotation. you can check that it's been configured
+correctly by the webhook using `kubectl`.
 
 # removing KinD
 
@@ -145,56 +210,6 @@ delete desired clusters
 ```
 kind delete cluster <cluster-name>
 ```
-
-# debugging
-
-docker exec into the running KinD node
-From there, the pod network is exposed on the host, ie.
-
-```
-docker exec -it <kind container id> bash
-kubectl get pods -o wide
-# note the ip addr
-curl 10.244.0.16:5678
-```
-
-# developing
-
-## helm chart
-
-make changes to the helm chart, and then you can install/upgrade it in the
-cluster:
-
-```
-helm upgrade -i webhook apm-agent-auto-attach/ --namespace=elastic-apm --create-namespace
-helm uninstall webhook --namespace=elastic-apm
-```
-
-## webhook
-
-Do your normal go development in the top-level *.go files of this repo.
-
-### creating the webhook container
-
-Note: The container used is alpine, because it's tiny but still allows for some
-degree of debugging. You're pretty much sunk if you're using scratch.
-
-1. create container: `make .webhook`
-2. make the webhook is available on dockerhub. mine is already there, you'll
-   have to change the container name if you want to use your own. this will
-   require updating the helmchart. you'll have to update the helm variable
-   `image.repository` to your repo, `--set image.repository=$MY_REPO`.
-
-## deploying the example container
-
-to deploy a simple echo server:
-
-```
-./example_deploy.sh
-```
-
-it already has the correct annotation. you can check that it's been configured
-correctly by the webhook using `kubectl`.
 
 # notes
 

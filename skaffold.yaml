@@ -1,0 +1,27 @@
+apiVersion: skaffold/v2beta28
+kind: Config
+metadata:
+  name: skaffold-config
+build:
+  local: {}
+  artifacts:
+    - image: stuartnelson3/webhook
+      docker:
+        dockerfile: "Dockerfile"
+deploy:
+  helm:
+    releases:
+      - name: apm-agent-auto-attach
+        chartPath: apm-agent-auto-attach
+        artifactOverrides:
+          image: stuartnelson3/webhook
+        imageStrategy:
+          helm: {}
+        namespace: elastic-apm
+        createNamespace: true
+        valuesFiles:
+          - custom.yaml
+        setValues:
+          # Image is pushed to local repository only; do not check for image
+          # presence in external repo.
+          image.pullPolicy: IfNotPresent
