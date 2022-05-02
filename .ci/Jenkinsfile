@@ -78,6 +78,20 @@ pipeline {
         }
       }
     }
+    stage('Package') {
+      steps {
+        withGithubNotify(context: 'Package') {
+          deleteDir()
+          unstash 'source'
+          dir("${BASE_DIR}"){
+            withMageEnv(){
+              dockerLogin(secret: env.DOCKER_SECRET, registry: env.DOCKER_REGISTRY)
+              sh(label: 'Package & Push', script: "./.ci/scripts/docker-package-push.sh docker.elastic.co/apm mutating-webhook ${env.GIT_BASE_COMMIT}")
+            }
+          }
+        }
+      }
+    }
   }
   post {
     cleanup {

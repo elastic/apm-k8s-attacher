@@ -1,6 +1,7 @@
-REPO?=stuartnelson3
-APPNAME?=webhook
+REPO?=apm
+NAME?=webhook
+TAG?=latest
 
 .webhook: *.go Dockerfile
-	docker build -t $(REPO)/$(APPNAME) .
+	docker build -t $(REPO)/$(NAME):$(TAG) .
 	touch $@
