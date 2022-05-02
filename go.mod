@@ -1,4 +1,4 @@
-module git.sr.ht/~stuartnelson3/mutating-webhook
+module github.com/elastic/apm-mutating-webhook
 
 go 1.17
 
