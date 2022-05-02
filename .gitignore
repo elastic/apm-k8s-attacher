@@ -1,9 +1,4 @@
-mutating-webhook
+*mutating-webhook
 main
-csr.conf
-*.csr
-*.key
-*.pem
 
-.agent
 .webhook
