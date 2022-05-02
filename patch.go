@@ -30,6 +30,12 @@ var (
 		Name:         volumeName,
 		VolumeSource: corev1.VolumeSource{EmptyDir: &corev1.EmptyDirVolumeSource{}},
 	}
+	kubernetesEnvironmentVariables = map[string]string{
+		"KUBERNETES_NODE_NAME": "spec.nodeName",
+		"KUBERNETES_POD_NAME":  "metadata.name",
+		"KUBERNETES_NAMESPACE": "metadata.namespace",
+		"KUBERNETES_POD_UID":   "metadata.uid",
+	}
 )
 
 func createPatch(config agentConfig, spec corev1.PodSpec) []patchOperation {
@@ -56,7 +62,7 @@ func createPatch(config agentConfig, spec corev1.PodSpec) []patchOperation {
 }
 
 func generateEnvironmentVariables(config agentConfig) []corev1.EnvVar {
-	vars := make([]corev1.EnvVar, 1, len(config.Environment)+1)
+	vars := make([]corev1.EnvVar, 1, len(config.Environment)+5)
 	vars[0] = corev1.EnvVar{
 		Name: "ELASTIC_APM_SECRET_TOKEN",
 		ValueFrom: &corev1.EnvVarSource{
@@ -65,6 +71,16 @@ func generateEnvironmentVariables(config agentConfig) []corev1.EnvVar {
 				Key:                  "secret-token",
 			},
 		},
+	}
+	for k, v := range kubernetesEnvironmentVariables {
+		vars = append(vars, corev1.EnvVar{
+			Name: k,
+			ValueFrom: &corev1.EnvVarSource{
+				FieldRef: &corev1.ObjectFieldSelector{
+					FieldPath: v,
+				},
+			},
+		})
 	}
 	for name, value := range config.Environment {
 		vars = append(vars, corev1.EnvVar{Name: name, Value: value})
