@@ -79,6 +79,10 @@ pipeline {
       }
     }
     stage('Package') {
+      environment {
+        DOCKER_SECRET = 'secret/apm-team/ci/docker-registry/prod'
+        DOCKER_REGISTRY = 'docker.elastic.co'
+      }
       steps {
         withGithubNotify(context: 'Package') {
           deleteDir()
@@ -86,7 +90,7 @@ pipeline {
           dir("${BASE_DIR}"){
             withMageEnv(){
               dockerLogin(secret: env.DOCKER_SECRET, registry: env.DOCKER_REGISTRY)
-              sh(label: 'Package & Push', script: "./.ci/scripts/docker-package-push.sh docker.elastic.co/apm mutating-webhook ${env.GIT_BASE_COMMIT}")
+              sh(label: 'Package & Push', script: "./.ci/scripts/docker-package-push.sh ${env.DOCKER_REGISTRY}/observability-ci ${env.REPO} ${env.GIT_BASE_COMMIT}")
             }
           }
         }
