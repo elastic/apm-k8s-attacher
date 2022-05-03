@@ -18,7 +18,7 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- $cn := .Release.Name }}
 {{- $csrName := printf "%s.%s.svc" (include "service.name" .) .Release.Namespace }}
 {{- $cert := genSignedCert $cn nil (list $csrName) 3650 $ca }}
-
+{{- $secretToken := required "APM Secret token is required" .Values.apm.token | b64enc }}
 ---
 apiVersion: v1
 kind: Secret
@@ -31,13 +31,15 @@ data:
   cert.pem: {{ b64enc $cert.Cert }}
   key.pem: {{ b64enc $cert.Key }}
 ---
+{{ range .Values.apm.namespaces }}
 apiVersion: v1
 kind: Secret
 metadata:
   name: apm-server-apm-token
-  namespace: {{ .Values.apm.namespace }}
+  namespace: {{ . }}
 data:
-  secret-token: {{ required "APM Secret token is required" .Values.apm.token | b64enc }}
+  secret-token: {{ $secretToken }}
+{{ end }}
 ---
 apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration

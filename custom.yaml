@@ -1,9 +1,15 @@
 apm:
   token: abc123
-# Fields written here are merged with pre-existing fields in values.yaml
+  # Custom arrays overwrite those defined in the values.yaml
+  # In this case, `[default]` is overwritten for `[ns1, ns2]`
+  namespaces:
+    - ns1
+    - ns2
 webhookConfig:
   agents:
     java:
+      # Objects have their kv-pairs merged with pre-existing objects.
+      # Fields written here are merged with pre-existing fields in values.yaml
       environment:
         ELASTIC_APM_SERVER_URL: "https://10.10.10.10:8200"
         ELASTIC_APM_SERVICE_NAME: "custom"
