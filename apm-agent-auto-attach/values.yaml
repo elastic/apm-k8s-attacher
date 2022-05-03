@@ -26,9 +26,7 @@ webhookConfig:
   agents:
     java:
       image: docker.elastic.co/observability/apm-agent-java:1.23.0
+      artifact: "/usr/agent/elastic-apm-agent.jar"
       environment:
-        ELASTIC_APM_SERVER_URLS: "http://34.78.173.219:8200"
-        ELASTIC_APM_SERVICE_NAME: "petclinic"
-        ELASTIC_APM_ENVIRONMENT: "test"
-        ELASTIC_APM_LOG_LEVEL: "debug"
-        ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED: "true"
+        ELASTIC_APM_LOG_LEVEL: "info"
+        ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED: "false"
