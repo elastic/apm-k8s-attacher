@@ -29,4 +29,4 @@ webhookConfig:
       artifact: "/usr/agent/elastic-apm-agent.jar"
       environment:
         ELASTIC_APM_LOG_LEVEL: "info"
-        ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED: "false"
+        JAVA_TOOL_OPTIONS: "-javaagent:/elastic/apm/agent/elastic-apm-agent.jar"

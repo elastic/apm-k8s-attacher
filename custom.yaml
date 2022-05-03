@@ -5,6 +5,7 @@ webhookConfig:
   agents:
     java:
       environment:
+        ELASTIC_APM_SERVER_URL: "https://10.10.10.10:8200"
         ELASTIC_APM_SERVICE_NAME: "custom"
         ELASTIC_APM_ENVIRONMENT: "dev"
         ELASTIC_APM_LOG_LEVEL: "debug"
