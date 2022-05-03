@@ -90,7 +90,7 @@ pipeline {
           dir("${BASE_DIR}"){
             withMageEnv(){
               dockerLogin(secret: env.DOCKER_SECRET, registry: env.DOCKER_REGISTRY)
-              sh(label: 'Package & Push', script: "./.ci/scripts/docker-package-push.sh ${env.DOCKER_REGISTRY}/observability-ci ${env.REPO} ${env.GIT_BASE_COMMIT}")
+              sh(label: 'Package & Push', script: "./.ci/docker-package-push.sh ${env.DOCKER_REGISTRY}/observability-ci ${env.REPO} ${env.GIT_BASE_COMMIT}")
             }
           }
         }
