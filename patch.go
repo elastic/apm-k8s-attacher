@@ -72,6 +72,19 @@ func generateEnvironmentVariables(config agentConfig) []corev1.EnvVar {
 			},
 		},
 	}
+	if _, ok := config.Environment["ELASTIC_APM_SERVER_URL"]; !ok {
+		// No apm-server url present, inject the local node address.
+		vars = append(vars,
+			corev1.EnvVar{
+				Name: "HOST_IP",
+				ValueFrom: &corev1.EnvVarSource{
+					FieldRef: &corev1.ObjectFieldSelector{
+						FieldPath: "status.hostIP",
+					},
+				},
+			},
+			corev1.EnvVar{Name: "ELASTIC_APM_SERVER_URL", Value: "http://$(HOST_IP):8200"})
+	}
 	for k, v := range kubernetesEnvironmentVariables {
 		vars = append(vars, corev1.EnvVar{
 			Name: k,
