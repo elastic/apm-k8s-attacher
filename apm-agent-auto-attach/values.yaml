@@ -25,7 +25,7 @@ podLabels: {}
 webhookConfig:
   agents:
     java:
-      image: docker.elastic.co/observability/apm-agent-java:1.23.0
+      image: docker.elastic.co/observability/apm-agent-java:latest
       artifact: "/usr/agent/elastic-apm-agent.jar"
       environment:
         ELASTIC_APM_LOG_LEVEL: "info"
