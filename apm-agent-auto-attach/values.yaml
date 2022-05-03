@@ -28,5 +28,4 @@ webhookConfig:
       image: docker.elastic.co/observability/apm-agent-java:latest
       artifact: "/usr/agent/elastic-apm-agent.jar"
       environment:
-        ELASTIC_APM_LOG_LEVEL: "info"
         JAVA_TOOL_OPTIONS: "-javaagent:/elastic/apm/agent/elastic-apm-agent.jar"
