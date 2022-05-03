@@ -102,21 +102,18 @@ func generateEnvironmentVariables(config agentConfig) []corev1.EnvVar {
 }
 
 func createVolumePatch(createArray bool) patchOperation {
-	var patch patchOperation
 	if createArray {
-		patch = patchOperation{
+		return patchOperation{
 			Op:    "add",
 			Path:  "/spec/volumes",
 			Value: []corev1.Volume{agentVolume},
 		}
-	} else {
-		patch = patchOperation{
-			Op:    "add",
-			Path:  "/spec/volumes/-",
-			Value: agentVolume,
-		}
 	}
-	return patch
+	return patchOperation{
+		Op:    "add",
+		Path:  "/spec/volumes/-",
+		Value: agentVolume,
+	}
 }
 
 func createInitContainerPatch(config agentConfig, createArray bool) patchOperation {
@@ -130,21 +127,18 @@ func createInitContainerPatch(config agentConfig, createArray bool) patchOperati
 		// *if needed*?
 		Command: []string{"cp", "-v", config.ArtifactPath, mountPath},
 	}
-	var patch patchOperation
 	if createArray {
-		patch = patchOperation{
+		return patchOperation{
 			Op:    "add",
 			Path:  "/spec/initContainers",
 			Value: []corev1.Container{agentInitContainer},
 		}
-	} else {
-		patch = patchOperation{
-			Op:    "add",
-			Path:  "/spec/initContainers/-",
-			Value: agentInitContainer,
-		}
 	}
-	return patch
+	return patchOperation{
+		Op:    "add",
+		Path:  "/spec/initContainers/-",
+		Value: agentInitContainer,
+	}
 }
 
 // If the env variable array does not already exist, this method will return a
@@ -153,22 +147,20 @@ func createInitContainerPatch(config agentConfig, createArray bool) patchOperati
 func createEnvVariablesPatches(envVariables []corev1.EnvVar, createArray bool, index int) []patchOperation {
 	containerIndex := strconv.Itoa(index)
 	envVariablesPath := "/spec/containers/" + containerIndex + "/env"
-	var patches []patchOperation
 	if createArray {
-		patches = []patchOperation{{
+		return []patchOperation{{
 			Op:    "add",
 			Path:  envVariablesPath,
 			Value: envVariables,
 		}}
-	} else {
-		envVariablesPath += "/-"
-		patches = []patchOperation{}
-		for _, variable := range envVariables {
-			patches = append(patches, patchOperation{
-				Op:    "add",
-				Path:  envVariablesPath,
-				Value: variable,
-			})
+	}
+	patches := make([]patchOperation, len(envVariables))
+	envVariablesPath += "/-"
+	for i, variable := range envVariables {
+		patches[i] = patchOperation{
+			Op:    "add",
+			Path:  envVariablesPath,
+			Value: variable,
 		}
 	}
 	return patches
@@ -177,19 +169,16 @@ func createEnvVariablesPatches(envVariables []corev1.EnvVar, createArray bool, i
 func createVolumeMountsPatch(createArray bool, index int) patchOperation {
 	containerIndex := strconv.Itoa(index)
 	volumeMountsPath := "/spec/containers/" + containerIndex + "/volumeMounts"
-	var patch patchOperation
 	if createArray {
-		patch = patchOperation{
+		return patchOperation{
 			Op:    "add",
 			Path:  volumeMountsPath,
 			Value: []corev1.VolumeMount{volumeMounts},
 		}
-	} else {
-		patch = patchOperation{
-			Op:    "add",
-			Path:  volumeMountsPath + "/-",
-			Value: volumeMounts,
-		}
 	}
-	return patch
+	return patchOperation{
+		Op:    "add",
+		Path:  volumeMountsPath + "/-",
+		Value: volumeMounts,
+	}
 }
