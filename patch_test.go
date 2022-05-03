@@ -1,6 +1,7 @@
 package main
 
 import (
+	"sort"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -33,9 +34,12 @@ func TestEnvVarPatch(t *testing.T) {
 		}
 	}
 	assert.Len(t, m, 0)
-
-	assert.Equal(t, "SANITY_CHECK", environmentVariables[5].Name)
-	assert.Equal(t, "ELASTIC_APM_SERVER_URL", environmentVariables[6].Name)
+	customVars := environmentVariables[5:]
+	sort.Slice(customVars, func(i, j int) bool {
+		return customVars[i].Name < customVars[j].Name
+	})
+	assert.Equal(t, "ELASTIC_APM_SERVER_URL", customVars[0].Name)
+	assert.Equal(t, "SANITY_CHECK", customVars[1].Name)
 }
 
 func TestAddAPMServerURLIfNotPresent(t *testing.T) {
