@@ -55,10 +55,32 @@ func createPatch(config agentConfig, spec corev1.PodSpec) []patchOperation {
 	// the volume mount
 	containers := spec.Containers
 	for index, container := range containers {
+		// Filter out environment variables from the agent config to
+		// not overwrite environment variables set directly on the
+		// container.
+		envVars := uniqueEnvironmentVariables(envVariables, container.Env)
 		patches = append(patches, createVolumeMountsPatch(container.VolumeMounts == nil, index))
-		patches = append(patches, createEnvVariablesPatches(envVariables, container.Env == nil, index)...)
+		patches = append(patches, createEnvVariablesPatches(envVars, container.Env == nil, index)...)
 	}
 	return patches
+}
+
+func uniqueEnvironmentVariables(configEnvironmentVariables, containerEnvironmentVariables []corev1.EnvVar) []corev1.EnvVar {
+	if len(containerEnvironmentVariables) == 0 {
+		return configEnvironmentVariables
+	}
+	unique := make([]corev1.EnvVar, 0, len(configEnvironmentVariables))
+	containerKeys := make(map[string]struct{}, len(containerEnvironmentVariables))
+	for _, v := range containerEnvironmentVariables {
+		containerKeys[v.Name] = struct{}{}
+	}
+	for _, v := range configEnvironmentVariables {
+		if _, ok := containerKeys[v.Name]; ok {
+			continue
+		}
+		unique = append(unique, v)
+	}
+	return unique
 }
 
 func generateEnvironmentVariables(config agentConfig) []corev1.EnvVar {

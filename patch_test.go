@@ -69,3 +69,24 @@ func TestInitContainerPatch(t *testing.T) {
 	assert.Equal(t, ic.Command, []string{"cp", "-v", config.ArtifactPath, mountPath})
 	assert.NotEmpty(t, ic.VolumeMounts)
 }
+
+func TestUniqueEnvironmentVariables(t *testing.T) {
+	webhook := []corev1.EnvVar{
+		{Name: "a", Value: "1"},
+		{Name: "b", Value: "1"},
+		{Name: "c", Value: "1"},
+		{Name: "f", Value: "1"},
+	}
+	container := []corev1.EnvVar{
+		{Name: "b", Value: "0"},
+		{Name: "c", Value: "0"},
+		{Name: "d", Value: "0"},
+	}
+	expected := []corev1.EnvVar{
+		{Name: "a", Value: "1"},
+		{Name: "f", Value: "1"},
+	}
+	unique := uniqueEnvironmentVariables(webhook, container)
+
+	assert.Equal(t, expected, unique)
+}
