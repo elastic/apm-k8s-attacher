@@ -70,4 +70,9 @@ spec:
           - "-text='hello world'"
           ports:
           - containerPort: 5678
+          env:
+          - name: ELASTIC_APM_LOG_LEVEL
+            value: "error"
+          - name: ELASTIC_APM_SERVICE_NAME
+            value: "original-name"
 EOF
