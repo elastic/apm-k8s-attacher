@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -118,28 +119,9 @@ func (s *server) mutate(admReview *admissionv1.AdmissionReview) error {
 	resp.Allowed = true
 	resp.UID = ar.UID
 
-	// TODO: encapsulate this whole config logic into a fn
-	result := new(metav1.Status)
-	annotations := pod.ObjectMeta.GetAnnotations()
-	if annotations == nil {
-		result.Message = "no annotations present"
-		resp.Result = result
-		admReview.Response = &resp
-		return nil
-	}
-	// TODO: Do we want to support multiple comma-separated agents?
-	agent, ok := annotations[apmAnnotation]
-	if !ok {
-		result.Message = "missing annotation `elastic-apm-agent`"
-		resp.Result = result
-		admReview.Response = &resp
-		return nil
-	}
-	// TODO: validate the config has a container field
-	config, ok := s.c[agent]
-	if !ok {
-		result.Message = fmt.Sprintf("no config for agent `%s`", agent)
-		resp.Result = result
+	config, err := getConfig(s.c, pod.ObjectMeta.GetAnnotations())
+	if err != nil {
+		resp.Result = &metav1.Status{Message: err.Error()}
 		admReview.Response = &resp
 		return nil
 	}
@@ -161,4 +143,22 @@ func (s *server) mutate(admReview *admissionv1.AdmissionReview) error {
 
 	admReview.Response = &resp
 	return nil
+}
+
+func getConfig(configs map[string]agentConfig, annotations map[string]string) (agentConfig, error) {
+	ac := agentConfig{}
+	if annotations == nil {
+		return ac, errors.New("no annotations present")
+	}
+	// TODO: Do we want to support multiple comma-separated agents?
+	agent, ok := annotations[apmAnnotation]
+	if !ok {
+		return ac, errors.New("missing annotation `elastic-apm-agent`")
+	}
+	// TODO: validate the config has a container field
+	config, ok := configs[agent]
+	if !ok {
+		return ac, fmt.Errorf("no config for agent `%s`", agent)
+	}
+	return config, nil
 }
