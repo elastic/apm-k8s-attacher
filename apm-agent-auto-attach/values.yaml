@@ -7,8 +7,8 @@ image:
 certFile: cert.pem
 keyFile: key.pem
 apm:
-  # how do users get to this? secrets are namespace bound
-  namespace: default
+  namespaces:
+    - default
   token:
 
 replicaCount: 1
