@@ -67,10 +67,6 @@ webhooks:
         resources: ["pods"]
     namespaceSelector:
       matchExpressions:
-        # TODO: Do we want to narrow this down to specific namespaces, or
-        # exempt specific namespaces?  Or is checking every pod regardless of
-        # namespace, and then only applying if they have the correct
-        # annotation, how we want to handle this?
         - key: kubernetes.io/metadata.name
           operator: NotIn
           values:
