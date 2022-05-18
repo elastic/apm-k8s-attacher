@@ -32,12 +32,6 @@ The helmchart manages configuring all the associated manifest files for the
 webhook receiver, including generating certificates for securing communication
 between the kubernetes api server and the webhook receiver.
 
-# todo
-
-- @felix connects with OPA team to discuss their strategy and our strategy
-- schedule a security audit
-- schedule a k8s audit
-
 # demo
 
 A recording of this demo is available [here](https://drive.google.com/drive/folders/18TMg1AQ0xcIddPGmR3Ty76ODDwukmTai).
