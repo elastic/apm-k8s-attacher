@@ -1,7 +1,36 @@
-# apm mutating webhook
+# apm mutating admission webhook
 
-This is the repo for apm mutating webhook for kubernetes. It contains both the
-webhook, and a helmchart for the webhook.
+This is the repo for apm mutating admission webhook for kubernetes. It contains
+both the webhook receiver and a helmchart for managing the receiver's
+lifecycle within kubernetes.
+
+## webhook
+
+The purpose of the webhook receiver is to modify pods so that they are
+automatically instrumented by an elastic apm agent. Currently, the java,
+nodejs, and dotnet agents are supported.
+
+The webhook receiver is invoked on pod creation. After having received the
+object definition from the kubernetes api server, it looks through the pod spec
+for a specific annotation (added by the user) and, if found, mutates the spec
+according to the webhook receiver's configuration. This mutated object is then
+returned to the kubernetes api server, which uses it as the source of truth for
+the object.
+
+The mutation taking place is:
+1. Add an init container image, which has the agent binary
+2. Add a shared volume which is mounted into both the init container image and
+   all container images contained in the original incoming object
+3. Copy the agent binary from the init container image into the shared volume,
+   making it available to the other container images
+4. Update the environment variables in the container images to configure
+   auto-instrumentation with the copied agent binary
+
+## helmchart
+
+The helmchart manages configuring all the associated manifest files for the
+webhook receiver, including generating certificates for securing communication
+between the kubernetes api server and the webhook receiver.
 
 # todo
 
