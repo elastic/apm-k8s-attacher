@@ -18,9 +18,14 @@ export TAG=${3:?docker tag not set}
 TAG=${TAG:0:7}
 
 fqn="${REPO}/${NAME}:${TAG}"
+latest="${REPO}/${NAME}:latest"
 
 echo "INFO: Build docker image ${fqn}"
 make .webhook
 
 echo "INFO: Push docker image ${fqn}"
 docker push "${fqn}"
+
+echo "INFO: Push docker image ${latest}"
+docker tag "${fqn}" "${latest}"
+docker push "${latest}"
