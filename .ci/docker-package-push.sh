@@ -14,7 +14,10 @@ export REPO=${1:?docker repo not set}
 export NAME=${2:?docker image name not set}
 export TAG=${3:?docker tag not set}
 
-fqn="${REPO}/${NAME}:${TAG:0:7}"
+# Use the short git SHA
+TAG=${TAG:0:7}
+
+fqn="${REPO}/${NAME}:${TAG}"
 
 echo "INFO: Build docker image ${fqn}"
 make .webhook
