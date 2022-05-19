@@ -292,20 +292,5 @@ kind delete cluster <cluster-name>
 
 # notes
 
-Links:
-- apm-server issue: https://github.com/elastic/apm-server/issues/7386
-- apm issue: https://github.com/elastic/apm/issues/385
-- [Using Admission Controllers | Kubernetes](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#mutatingadmissionwebhook)
-- [MutatingWebhook config options](https://pkg.go.dev/k8s.io/api/admissionregistration/v1beta1#MutatingWebhook)
-
 source code inspiration:
 https://github.com/ExpediaGroup/kubernetes-sidecar-injector/tree/master
-
-simple tutorial:
-https://medium.com/ovni/writing-a-very-basic-kubernetes-mutating-admission-webhook-398dbbcb63ec
-https://github.com/alex-leonhardt/k8s-mutate-webhook
-
-other tutorial:
-https://medium.com/ibm-cloud/diving-into-kubernetes-mutatingadmissionwebhook-6ef3c5695f74
-https://github.com/morvencao/kube-sidecar-injector
-
