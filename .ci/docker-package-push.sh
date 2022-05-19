@@ -14,7 +14,7 @@ export REPO=${1:?docker repo not set}
 export NAME=${2:?docker image name not set}
 export TAG=${3:?docker tag not set}
 
-fqn="${REPO}/${NAME}:${TAG}"
+fqn="${REPO}/${NAME}:${TAG:0:7}"
 
 echo "INFO: Build docker image ${fqn}"
 make .webhook
