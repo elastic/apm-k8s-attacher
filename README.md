@@ -32,6 +32,62 @@ The helmchart manages configuring all the associated manifest files for the
 webhook receiver, including generating certificates for securing communication
 between the kubernetes api server and the webhook receiver.
 
+# using the webhook
+
+The webhook is managed by the helmchart in this repo. To install it into your
+cluster, clone this repo:
+
+```
+git clone git@github.com:elastic/apm-mutating-webhook.git
+cd apm-mutating-webhook
+```
+
+Modify the value of `ELASTIC_APM_SERVER_URL` in `custom.yml` to point to your
+apm-server. Additionally, if you have configured a secret token, set its value
+as well under `apm.token`. If you're using a secret-token, you need to also
+list all the namespaces where you are auto-instrumenting pods. The secret-token
+is stored as a `Secret` in kubernetes, and they are namespaced.
+
+Now, install the helmchart using helm:
+
+```
+helm upgrade -i webhook apm-agent-auto-attach/ --namespace=elastic-apm --create-namespace
+```
+
+For a deployment to be auto-instrumented, update its
+`spec.template.metadata.annotations` to include `elastic-apm-agent: java`. The
+webhook matches the value of `elastic-apm-agent` (in this case, `java`) to the
+config with the matching name under `webhookConfig.agents` defined in the
+helmchart.
+
+Custom webhook configurations can be defined. For example, editing `custom.yaml`:
+
+```
+webhookConfig:
+  agents:
+    prodJava:
+      image: docker.elastic.co/observability/apm-agent-java:1.30.1
+      artifact: "/usr/agent/elastic-apm-agent.jar"
+      environment:
+        JAVA_TOOL_OPTIONS: "-javaagent:/elastic/apm/agent/elastic-apm-agent.jar"
+        ELASTIC_APM_SERVER_URL: "https://10.10.10.10:8200"
+        ELASTIC_APM_ENVIRONMENT: "prod"
+        ELASTIC_APM_LOG_LEVEL: "info"
+    devJava:
+      image: docker.elastic.co/observability/apm-agent-java:1.30.1
+      artifact: "/usr/agent/elastic-apm-agent.jar"
+      environment:
+        JAVA_TOOL_OPTIONS: "-javaagent:/elastic/apm/agent/elastic-apm-agent.jar"
+        ELASTIC_APM_SERVER_URL: "https://10.10.10.10:8200"
+        ELASTIC_APM_ENVIRONMENT: "dev"
+        ELASTIC_APM_LOG_LEVEL: "debug"
+```
+
+Note: `artifact` and `JAVA_TOOL_OPTIONS` keys should not be edited.
+
+A deployment can indicate which configuration to apply via its annotation, ie.
+`elastic-apm-agent: devJava`.
+
 # demo
 
 A recording of this demo is available [here](https://drive.google.com/drive/folders/18TMg1AQ0xcIddPGmR3Ty76ODDwukmTai).
