@@ -1,10 +1,10 @@
-apm:
-  token: abc123
-  # Custom arrays overwrite those defined in the values.yaml
-  # In this case, `[default]` is overwritten for `[ns1, ns2]`
-  namespaces:
-    - ns1
-    - ns2
+# apm:
+#   token: abc123
+#   # Custom arrays overwrite those defined in the values.yaml
+#   # In this case, `[default]` is overwritten for `[ns1, ns2]`
+#   namespaces:
+#     - ns1
+#     - ns2
 webhookConfig:
   agents:
     java:
