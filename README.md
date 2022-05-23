@@ -85,6 +85,9 @@ webhookConfig:
 
 Note: `artifact` and `JAVA_TOOL_OPTIONS` keys should not be edited.
 
+To use the custom config when installing the webhook, supply `-f custom.yaml`
+to the `helm upgrade` above.
+
 A deployment can indicate which configuration to apply via its annotation, ie.
 `elastic-apm-agent: devJava`.
 
