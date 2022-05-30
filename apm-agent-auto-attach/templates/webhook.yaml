@@ -29,17 +29,24 @@ metadata:
 data:
   cert.pem: {{ b64enc $cert.Cert }}
   key.pem: {{ b64enc $cert.Key }}
-{{ if .Values.apm.token }}
-{{- $secretToken := b64enc .Values.apm.token }}
+
+{{- $secret_token := .Values.apm.secret_token }}
+{{- $api_key := .Values.apm.api_key }}
+{{ if or $secret_token $api_key }}
 {{ range .Values.apm.namespaces }}
 ---
 apiVersion: v1
 kind: Secret
 metadata:
-  name: apm-server-apm-token
+  name: apm-agent-auth
   namespace: {{ . }}
 data:
-  secret-token: {{ $secretToken }}
+{{- if $secret_token }}
+  secret_token: {{ b64enc $secret_token }}
+{{- end }}
+{{- if $api_key }}
+  api_key: {{ b64enc $api_key }}
+{{- end }}
 {{ end }}
 {{ end }}
 ---

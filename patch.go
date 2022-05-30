@@ -84,28 +84,38 @@ func uniqueEnvironmentVariables(configEnvironmentVariables, containerEnvironment
 }
 
 func generateEnvironmentVariables(config agentConfig) []corev1.EnvVar {
-	vars := make([]corev1.EnvVar, 1, len(config.Environment)+5)
-	vars[0] = corev1.EnvVar{
+	optional := true
+	vars := []corev1.EnvVar{{
 		Name: "ELASTIC_APM_SECRET_TOKEN",
 		ValueFrom: &corev1.EnvVarSource{
 			SecretKeyRef: &corev1.SecretKeySelector{
-				LocalObjectReference: corev1.LocalObjectReference{Name: "apm-server-apm-token"},
-				Key:                  "secret-token",
+				LocalObjectReference: corev1.LocalObjectReference{Name: "apm-agent-auth"},
+				Key:                  "secret_token",
+				Optional:             &optional,
 			},
 		},
-	}
+	}, {
+		Name: "ELASTIC_APM_API_KEY",
+		ValueFrom: &corev1.EnvVarSource{
+			SecretKeyRef: &corev1.SecretKeySelector{
+				LocalObjectReference: corev1.LocalObjectReference{Name: "apm-agent-auth"},
+				Key:                  "api_key",
+				Optional:             &optional,
+			},
+		},
+	}}
 	if _, ok := config.Environment["ELASTIC_APM_SERVER_URL"]; !ok {
 		// No apm-server url present, inject the local node address.
-		vars = append(vars,
-			corev1.EnvVar{
-				Name: "HOST_IP",
-				ValueFrom: &corev1.EnvVarSource{
-					FieldRef: &corev1.ObjectFieldSelector{
-						FieldPath: "status.hostIP",
-					},
+		vars = append(vars, corev1.EnvVar{
+			Name: "HOST_IP",
+			ValueFrom: &corev1.EnvVarSource{
+				FieldRef: &corev1.ObjectFieldSelector{
+					FieldPath: "status.hostIP",
 				},
 			},
-			corev1.EnvVar{Name: "ELASTIC_APM_SERVER_URL", Value: "http://$(HOST_IP):8200"})
+		}, corev1.EnvVar{
+			Name: "ELASTIC_APM_SERVER_URL", Value: "http://$(HOST_IP):8200",
+		})
 	}
 	for k, v := range kubernetesEnvironmentVariables {
 		vars = append(vars, corev1.EnvVar{

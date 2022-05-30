@@ -19,8 +19,9 @@ func TestEnvVarPatch(t *testing.T) {
 	patches := createEnvVariablesPatches(vars, true, 0)
 	assert.Len(t, patches, 1)
 	environmentVariables := patches[0].Value.([]corev1.EnvVar)
-	assert.Len(t, environmentVariables, 7)
+	assert.Len(t, environmentVariables, 8)
 	assert.Equal(t, "ELASTIC_APM_SECRET_TOKEN", environmentVariables[0].Name)
+	assert.Equal(t, "ELASTIC_APM_API_KEY", environmentVariables[1].Name)
 
 	m := map[string]struct{}{
 		"KUBERNETES_NODE_NAME": {},
@@ -34,7 +35,7 @@ func TestEnvVarPatch(t *testing.T) {
 		}
 	}
 	assert.Len(t, m, 0)
-	customVars := environmentVariables[5:]
+	customVars := environmentVariables[6:]
 	sort.Slice(customVars, func(i, j int) bool {
 		return customVars[i].Name < customVars[j].Name
 	})
@@ -48,11 +49,12 @@ func TestAddAPMServerURLIfNotPresent(t *testing.T) {
 	patches := createEnvVariablesPatches(vars, true, 0)
 	assert.Len(t, patches, 1)
 	environmentVariables := patches[0].Value.([]corev1.EnvVar)
-	assert.Len(t, environmentVariables, 7)
+	assert.Len(t, environmentVariables, 8)
 	assert.Equal(t, "ELASTIC_APM_SECRET_TOKEN", environmentVariables[0].Name)
-	assert.Equal(t, "HOST_IP", environmentVariables[1].Name)
-	assert.Equal(t, "ELASTIC_APM_SERVER_URL", environmentVariables[2].Name)
-	assert.Equal(t, "http://$(HOST_IP):8200", environmentVariables[2].Value)
+	assert.Equal(t, "ELASTIC_APM_API_KEY", environmentVariables[1].Name)
+	assert.Equal(t, "HOST_IP", environmentVariables[2].Name)
+	assert.Equal(t, "ELASTIC_APM_SERVER_URL", environmentVariables[3].Name)
+	assert.Equal(t, "http://$(HOST_IP):8200", environmentVariables[3].Value)
 }
 
 func TestInitContainerPatch(t *testing.T) {

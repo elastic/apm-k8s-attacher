@@ -1,5 +1,6 @@
 # apm:
-#   token: abc123
+#   secret_token: abc123
+#   api_key: VnVhQ2ZHY0JDZGJrUW0tZTVhT3g6dWkybHAyYXhUTm1zeWFrdzl0dk5udw==
 #   # Custom arrays overwrite those defined in the values.yaml
 #   # In this case, `[default]` is overwritten for `[ns1, ns2]`
 #   namespaces:

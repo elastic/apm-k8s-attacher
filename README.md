@@ -43,10 +43,11 @@ cd apm-mutating-webhook
 ```
 
 Modify the value of `ELASTIC_APM_SERVER_URL` in `custom.yml` to point to your
-apm-server. Additionally, if you have configured a secret token, set its value
-as well under `apm.token`. If you're using a secret-token, you need to also
-list all the namespaces where you are auto-instrumenting pods. The secret-token
-is stored as a `Secret` in kubernetes, and they are namespaced.
+apm-server. Additionally, if you have configured API Key or secret token,
+set its value as well under `apm.api_key` or `apm.secret_token` respectively.
+If you're using an API Key or secret token, you need to also list all the
+namespaces where you are auto-instrumenting pods. The API Key and secret token
+are stored in Kubernetes `Secret` in each namespace.
 
 Now, install the helmchart using helm:
 
@@ -138,8 +139,8 @@ inject the java image + environment variables, `node` would inject the node
 image + environment variables. the actual value is unimportant, it's just the
 config that it contains that matters.
 
-the user also needs to define `apm.token`. This can be written in either the
-`custom.yaml` file, or applied via `--set apm.token=$MY_TOKEN` when running
+The user also needs to define `apm.api_key` or `apm.secret_token`. These can be
+written in either the `custom.yaml` file, or applied via `--set` when running
 `helm`.
 
 # configuring
