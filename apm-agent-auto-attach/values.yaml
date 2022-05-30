@@ -9,7 +9,8 @@ keyFile: key.pem
 apm:
   namespaces:
     - default
-  token:
+  secret_token:
+  api_key:
 
 replicaCount: 1
 
