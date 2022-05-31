@@ -67,7 +67,7 @@ type agentConfig struct {
 	ArtifactPath string            `yaml:"artifact"`
 }
 
-const apmAnnotation = "elastic-apm-agent"
+const apmAnnotation = "co.elastic.traces/agent"
 
 func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
@@ -153,7 +153,7 @@ func getConfig(configs map[string]agentConfig, annotations map[string]string) (a
 	// TODO: Do we want to support multiple comma-separated agents?
 	agent, ok := annotations[apmAnnotation]
 	if !ok {
-		return ac, errors.New("missing annotation `elastic-apm-agent`")
+		return ac, errors.New("missing annotation `co.elastic.traces/agent`")
 	}
 	// TODO: validate the config has a container field
 	config, ok := configs[agent]

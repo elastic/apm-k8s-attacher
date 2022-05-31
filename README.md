@@ -56,8 +56,8 @@ helm upgrade -i webhook apm-agent-auto-attach/ --namespace=elastic-apm --create-
 ```
 
 For a deployment to be auto-instrumented, update its
-`spec.template.metadata.annotations` to include `elastic-apm-agent: java`. The
-webhook matches the value of `elastic-apm-agent` (in this case, `java`) to the
+`spec.template.metadata.annotations` to include `co.elastic.traces/agent: java`. The
+webhook matches the value of `co.elastic.traces/agent` (in this case, `java`) to the
 config with the matching name under `webhookConfig.agents` defined in the
 helmchart.
 
@@ -90,7 +90,7 @@ To use the custom config when installing the webhook, supply `-f custom.yaml`
 to the `helm upgrade` above.
 
 A deployment can indicate which configuration to apply via its annotation, ie.
-`elastic-apm-agent: devJava`.
+`co.elastic.traces/agent: devJava`.
 
 # demo
 
@@ -133,7 +133,7 @@ The user can inject their own custom config for the mutating webhook:
 helm upgrade -i webhook apm-agent-auto-attach/ --namespace=elastic-apm --create-namespace -f custom.yaml
 ```
 
-The annotation looked for on a pod is `elastic-apm-agent`. The value indicates
+The annotation looked for on a pod is `co.elastic.traces/agent`. The value indicates
 which image+environment variables to inject into the pod. eg., `java` would
 inject the java image + environment variables, `node` would inject the node
 image + environment variables. the actual value is unimportant, it's just the

@@ -60,7 +60,7 @@ spec:
         app: ${APP}-annotation
       annotations:
         deployment.kubernetes.io/revision: "$revision"
-        elastic-apm-agent: java
+        co.elastic.traces/agent: java
     spec:
       containers:
         - name: example-app
