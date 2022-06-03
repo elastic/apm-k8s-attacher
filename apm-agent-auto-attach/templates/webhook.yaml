@@ -1,4 +1,5 @@
-# heavily influenced by https://github.com/ExpediaGroup/kubernetes-sidecar-injector
+# This file is based on modifications to Kubernetes Mutating Webhook by Expedia, Inc., which is licensed under Apache 2.0.
+# https://github.com/ExpediaGroup/kubernetes-sidecar-injector
 {{- define "common.labels" }}
 app.kubernetes.io/name: {{ .Release.Name }}
 app.kubernetes.io/component: webhook
