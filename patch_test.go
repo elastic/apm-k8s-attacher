@@ -82,7 +82,7 @@ func TestInitContainerPatch(t *testing.T) {
 	ic := initContainers[0]
 	assert.Equal(t, ic.Name, "agent-image")
 	assert.Equal(t, ic.Image, config.Image)
-	assert.Equal(t, ic.Command, []string{"cp", "-v", config.ArtifactPath, mountPath})
+	assert.Equal(t, ic.Command, []string{"cp", "-v", "-r", config.ArtifactPath, mountPath})
 	assert.NotEmpty(t, ic.VolumeMounts)
 }
 

@@ -30,3 +30,8 @@ webhookConfig:
       artifact: "/usr/agent/elastic-apm-agent.jar"
       environment:
         JAVA_TOOL_OPTIONS: "-javaagent:/elastic/apm/agent/elastic-apm-agent.jar"
+    nodejs:
+      image: docker.elastic.co/observability/apm-agent-nodejs:3.34.0
+      artifact: "/usr/agent/nodejs/node_modules/elastic-apm-node"
+      environment:
+        NODE_OPTIONS: "-r /elastic/apm/agent/elastic-apm-node/start"
