@@ -171,7 +171,7 @@ func createInitContainerPatch(config agentConfig, createArray bool) patchOperati
 		VolumeMounts: []corev1.VolumeMount{volumeMounts},
 		// TODO: should this be a default, and then users can modify it
 		// *if needed*?
-		Command: []string{"cp", "-v", config.ArtifactPath, mountPath},
+		Command: []string{"cp", "-v", "-r", config.ArtifactPath, mountPath},
 	}
 	if createArray {
 		return patchOperation{
