@@ -92,63 +92,9 @@ to the `helm upgrade` above.
 A deployment can indicate which configuration to apply via its annotation, ie.
 `co.elastic.traces/agent: devJava`.
 
-# demo
-
-A recording of this demo is available [here](https://drive.google.com/drive/folders/18TMg1AQ0xcIddPGmR3Ty76ODDwukmTai).
-
-```
-# create cluster
-kind create cluster --config kind.yaml
-# install helm chart
-helm upgrade -i webhook apm-agent-auto-attach/ --namespace=elastic-apm --create-namespace
-# add deploy with annotation
-./example_deploy.sh
-# query for pod name
-pod=$(kubectl get -o name pods | grep annotation)
-# verify it has been mutated (environment, volume)
-kubectl describe $pod
-```
-
-asciinema demo: https://asciinema.org/a/aNUJAK1KUfuZwgFm4eCpOuCro
-
-setting a custom webhook config:
-
-Given a file `custom.yaml`:
-```yaml
-webhookConfig:
-  agents:
-    java:
-      image: docker.elastic.co/observability/apm-agent-java:1.23.0
-      environment:
-        ELASTIC_APM_SERVER_URLS: "http://34.78.173.219:8200"
-        ELASTIC_APM_SERVICE_NAME: "custom"
-        ELASTIC_APM_ENVIRONMENT: "dev"
-        ELASTIC_APM_LOG_LEVEL: "debug"
-        ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED: "true"
-        JAVA_TOOL_OPTIONS: "-javaagent:/elastic/apm/agent/elastic-apm-agent.jar"
-```
-
-The user can inject their own custom config for the mutating webhook:
-```
-helm upgrade -i webhook apm-agent-auto-attach/ --namespace=elastic-apm --create-namespace -f custom.yaml
-```
-
-The annotation looked for on a pod is `co.elastic.traces/agent`. The value indicates
-which image+environment variables to inject into the pod. eg., `java` would
-inject the java image + environment variables, `node` would inject the node
-image + environment variables. the actual value is unimportant, it's just the
-config that it contains that matters.
-
-The user also needs to define `apm.api_key` or `apm.secret_token`. These can be
-written in either the `custom.yaml` file, or applied via `--set` when running
-`helm`.
-
 # configuring
 
-The user can (and should) pass in a custom yml config on creation. How do we
-want to handle this? Do we provide an example they should use and update
-themselves? Server url, service name, etc are not things we can provide a
-default for, right?
+The user can (and should) pass in a custom yml config on creation.
 
 ```yml
 agents:
@@ -170,25 +116,6 @@ Using the annotation value allows users to set custom environment variables and
 images per deploy. For example, `backend1` might have a different service name
 from `backend2`, and `backend1-dev` might have a different apm environment from
 `backend1-prod`.
-
-Note: Right now, we can only specify a single secret token to be injected for
-interacting with the apm-server, which means a single webhook deploy can only
-configure pods to one apm-server. A user can install multiple versions of the
-helm chart, however, with different apm-server/secret-token combinations, and
-have different values for the agent configs. Coming up with a way to configure
-this so that a token can be related to a specific apm-server might take some
-additional thought.
-
-Open questions:
-- How do we configure the command for moving the agent artifact into the shared
-  volume? Right now it's using `artifact` (see example config above) to know
-  the location, and then copying it to the non-configurable
-  `/elastic/apm/agent/$ARTIFACT` within the shared volume in the pod.
-- Currently the artifact location (see `JAVA_TOOL_OPTIONS` above) is hardcoded
-  within `patch.go`. The `JAVA_TOOL_OPTIONS` environment variable depends on a
-  constant within the code; how can we prevent a user from configuring this
-  incorrectly? Or is this something we "supply" in a default config and hope
-  they don't mess with it?
 
 # dev dependencies
 
@@ -293,8 +220,3 @@ delete desired clusters
 ```
 kind delete cluster <cluster-name>
 ```
-
-# notes
-
-source code inspiration:
-https://github.com/ExpediaGroup/kubernetes-sidecar-injector/tree/master
