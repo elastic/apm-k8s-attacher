@@ -1,4 +1,4 @@
-FROM golang:1.17-alpine AS build
+FROM golang:1.18-alpine AS build
 RUN apk update
 RUN apk upgrade
 ADD *go* /app/
