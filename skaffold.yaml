@@ -5,7 +5,7 @@ metadata:
 build:
   local: {}
   artifacts:
-    - image: stuartnelson3/webhook
+    - image: elastic/apm-mutating-webhook
       docker:
         dockerfile: "Dockerfile"
 deploy:
@@ -14,7 +14,7 @@ deploy:
       - name: apm-agent-auto-attach
         chartPath: apm-agent-auto-attach
         artifactOverrides:
-          image: stuartnelson3/webhook
+          image: elastic/apm-mutating-webhook
         imageStrategy:
           helm: {}
         namespace: elastic-apm
