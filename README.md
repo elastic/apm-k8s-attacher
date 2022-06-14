@@ -4,6 +4,9 @@ This is the repo for apm mutating admission webhook for kubernetes. It contains
 both the webhook receiver and a helmchart for managing the receiver's
 lifecycle within kubernetes.
 
+The software contained in this repo is considered a **technical preview**, and
+is not yet recommended for use in a production cluster.
+
 ## webhook
 
 The purpose of the webhook receiver is to modify pods so that they are
