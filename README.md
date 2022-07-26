@@ -153,7 +153,6 @@ agents:
     artifact: "/usr/agent/elastic-apm-agent.jar"
     environment:
       ELASTIC_APM_SERVER_URLS: "http://192.168.1.11:8200"
-      ELASTIC_APM_SERVICE_NAME: "petclinic"
       ELASTIC_APM_ENVIRONMENT: "dev"
       ELASTIC_APM_LOG_LEVEL: "info"
       ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED: "true"
