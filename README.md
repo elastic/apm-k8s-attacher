@@ -61,7 +61,7 @@ apm:
 webhookConfig:
   agents:
     java:
-      image: docker.elastic.co/observability/apm-agent-java:1.33.0
+      image: docker.elastic.co/observability/apm-agent-java:latest
       artifact: "/usr/agent/elastic-apm-agent.jar"
       environment:
         JAVA_TOOL_OPTIONS: "-javaagent:/elastic/apm/agent/elastic-apm-agent.jar"
@@ -139,8 +139,8 @@ from `backend2`, and `backend1-dev` might have a different apm environment from
 
 ```yml
 agents:
-  backend1:
-    image: docker.elastic.co/observability/apm-agent-java:1.33.0
+  java-test:
+    image: docker.elastic.co/observability/apm-agent-java:latest
     artifact: "/usr/agent/elastic-apm-agent.jar"
     environment:
       ELASTIC_APM_SERVER_URLS: "http://192.168.1.10:8200"
@@ -149,7 +149,7 @@ agents:
       ELASTIC_APM_LOG_LEVEL: "debug"
       ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED: "true"
       JAVA_TOOL_OPTIONS: "-javaagent:/elastic/apm/agent/elastic-apm-agent.jar"
-  backend2-dev:
+  java-dev:
     image: docker.elastic.co/observability/apm-agent-java:latest
     artifact: "/usr/agent/elastic-apm-agent.jar"
     environment:
@@ -159,8 +159,8 @@ agents:
       ELASTIC_APM_LOG_LEVEL: "info"
       ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED: "true"
       JAVA_TOOL_OPTIONS: "-javaagent:/elastic/apm/agent/elastic-apm-agent.jar"
-  backend2-prod:
-    image: docker.elastic.co/observability/apm-agent-java:1.33.0
+  java-prod:
+    image: docker.elastic.co/observability/apm-agent-java:latest
     artifact: "/usr/agent/elastic-apm-agent.jar"
     environment:
       ELASTIC_APM_SERVER_URLS: "http://192.168.1.11:8200"
@@ -170,7 +170,7 @@ agents:
       ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED: "true"
       JAVA_TOOL_OPTIONS: "-javaagent:/elastic/apm/agent/elastic-apm-agent.jar"
   backend2: # no environment, run with defaults
-    image: docker.elastic.co/observability/apm-agent-nodejs:3.37.0
+    image: docker.elastic.co/observability/apm-agent-nodejs:latest
 ```
 
 And in your Kubernetes manifest you reference the name of the Agent configuration.
@@ -194,7 +194,7 @@ spec:
 
       # APM Mutating WebHook configuration
       annotations:
-        co.elastic.traces/agent: backend1
+        co.elastic.traces/agent: java-test
 
       labels:
         app: my-service-java
