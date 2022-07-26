@@ -163,7 +163,6 @@ agents:
     environment:
       ELASTIC_APM_SERVER_URLS: "http://192.168.1.11:8200"
       ELASTIC_APM_SERVICE_NAME: "petclinic"
-      ELASTIC_APM_ENVIRONMENT: "production"
       ELASTIC_APM_LOG_LEVEL: "info"
       ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED: "true"
       JAVA_TOOL_OPTIONS: "-javaagent:/elastic/apm/agent/elastic-apm-agent.jar"
