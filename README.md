@@ -40,9 +40,34 @@ between the kubernetes api server and the webhook receiver.
 The webhook is managed by the helmchart in this repo. To install it into your
 cluster, clone this repo:
 
-```
+```bash
 git clone git@github.com:elastic/apm-mutating-webhook.git
 cd apm-mutating-webhook
+```
+
+The webhook is installed by using a Helm Chart, 
+you can provide a custom webhook configurations using a Helm values file. For example, editing `custom.yaml`:
+
+```yaml
+apm:
+  secret_token: SuP3RT0K3N
+#   api_key: VnVhQ2ZHY0JDZGJrUW0tZTVhT3g6dWkybHAyYXhUTm1zeWFrdzl0dk5udw==
+#   # Custom arrays overwrite those defined in the values.yaml
+#   # In this case, `[default]` is overwritten for `[ns1, ns2]`
+  namespaces:
+    - default
+    - my-name-space-01
+    - my-name-space-02
+webhookConfig:
+  agents:
+    java:
+      image: docker.elastic.co/observability/apm-agent-java:latest
+      artifact: "/usr/agent/elastic-apm-agent.jar"
+      environment:
+        JAVA_TOOL_OPTIONS: "-javaagent:/elastic/apm/agent/elastic-apm-agent.jar"
+        ELASTIC_APM_SERVER_URL: "https://apm-example.com:8200"
+        ELASTIC_APM_ENVIRONMENT: "prod"
+        ELASTIC_APM_LOG_LEVEL: "info"
 ```
 
 Modify the value of `ELASTIC_APM_SERVER_URL` in `custom.yml` to point to your
@@ -52,10 +77,19 @@ If you're using an API Key or secret token, you need to also list all the
 namespaces where you are auto-instrumenting pods. The API Key and secret token
 are stored in Kubernetes `Secret` in each namespace.
 
+Note: `artifact` and `JAVA_TOOL_OPTIONS` keys should not be edited.
+
+To use the custom config when installing the webhook, supply `--values custom.yaml`
+to the `helm upgrade` above.
+
 Now, install the helmchart using helm:
 
-```
-helm upgrade -i webhook apm-agent-auto-attach/ --namespace=elastic-apm --create-namespace
+```bash
+helm upgrade \
+  --install webhook apm-agent-auto-attach/ \
+  --namespace=elastic-apm \
+  --create-namespace \
+  --values custom.yaml
 ```
 
 For a deployment to be auto-instrumented, update its
@@ -64,61 +98,113 @@ webhook matches the value of `co.elastic.traces/agent` (in this case, `java`) to
 config with the matching name under `webhookConfig.agents` defined in the
 helmchart.
 
-Custom webhook configurations can be defined. For example, editing `custom.yaml`:
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-service
+  namespace: default
+  labels:
+    app: my-service
+    service: my-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-service
+  template:
+    metadata:
 
-```
-webhookConfig:
-  agents:
-    prodJava:
-      image: docker.elastic.co/observability/apm-agent-java:1.30.1
-      artifact: "/usr/agent/elastic-apm-agent.jar"
-      environment:
-        JAVA_TOOL_OPTIONS: "-javaagent:/elastic/apm/agent/elastic-apm-agent.jar"
-        ELASTIC_APM_SERVER_URL: "https://10.10.10.10:8200"
-        ELASTIC_APM_ENVIRONMENT: "prod"
-        ELASTIC_APM_LOG_LEVEL: "info"
-    devJava:
-      image: docker.elastic.co/observability/apm-agent-java:1.30.1
-      artifact: "/usr/agent/elastic-apm-agent.jar"
-      environment:
-        JAVA_TOOL_OPTIONS: "-javaagent:/elastic/apm/agent/elastic-apm-agent.jar"
-        ELASTIC_APM_SERVER_URL: "https://10.10.10.10:8200"
-        ELASTIC_APM_ENVIRONMENT: "dev"
-        ELASTIC_APM_LOG_LEVEL: "debug"
-```
+      # APM Mutating WebHook configuration
+      annotations:
+        co.elastic.traces/agent: java
 
-Note: `artifact` and `JAVA_TOOL_OPTIONS` keys should not be edited.
-
-To use the custom config when installing the webhook, supply `-f custom.yaml`
-to the `helm upgrade` above.
-
-A deployment can indicate which configuration to apply via its annotation, ie.
-`co.elastic.traces/agent: devJava`.
-
-# configuring
-
-The user can (and should) pass in a custom yml config on creation.
-
-```yml
-agents:
-  java:
-    image: docker.com/elastic/agent-java:1.2.3
-    artifact: "/usr/agent/elastic-apm-agent.jar"
-    environment:
-      ELASTIC_APM_SERVER_URLS: "http://34.78.173.219:8200"
-      ELASTIC_APM_SERVICE_NAME: "petclinic"
-      ELASTIC_APM_ENVIRONMENT: "test"
-      ELASTIC_APM_LOG_LEVEL: "debug"
-      ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED: "true"
-      JAVA_TOOL_OPTIONS: "-javaagent:/elastic/apm/agent/elastic-apm-agent.jar"
-  node: # no environment, run with defaults
-    image: docker.com/elastic/agent-node:1.2.3
+      labels:
+        app: my-service-java
+        service: my-service
+    spec:
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - name: my-service
+        image: my-service:v1.0.0
+        ports:
+        - name: my-service
+          containerPort: 8080
 ```
 
 Using the annotation value allows users to set custom environment variables and
 images per deploy. For example, `backend1` might have a different service name
 from `backend2`, and `backend1-dev` might have a different apm environment from
 `backend1-prod`.
+
+```yml
+agents:
+  java-test:
+    image: docker.elastic.co/observability/apm-agent-java:latest
+    artifact: "/usr/agent/elastic-apm-agent.jar"
+    environment:
+      ELASTIC_APM_SERVER_URLS: "http://192.168.1.10:8200"
+      ELASTIC_APM_ENVIRONMENT: "test"
+      ELASTIC_APM_LOG_LEVEL: "debug"
+      ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED: "true"
+      JAVA_TOOL_OPTIONS: "-javaagent:/elastic/apm/agent/elastic-apm-agent.jar"
+  java-dev:
+    image: docker.elastic.co/observability/apm-agent-java:latest
+    artifact: "/usr/agent/elastic-apm-agent.jar"
+    environment:
+      ELASTIC_APM_SERVER_URLS: "http://192.168.1.11:8200"
+      ELASTIC_APM_ENVIRONMENT: "dev"
+      ELASTIC_APM_LOG_LEVEL: "info"
+      ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED: "true"
+      JAVA_TOOL_OPTIONS: "-javaagent:/elastic/apm/agent/elastic-apm-agent.jar"
+  java-prod:
+    image: docker.elastic.co/observability/apm-agent-java:latest
+    artifact: "/usr/agent/elastic-apm-agent.jar"
+    environment:
+      ELASTIC_APM_SERVER_URLS: "http://192.168.1.11:8200"
+      ELASTIC_APM_SERVICE_NAME: "petclinic"
+      ELASTIC_APM_LOG_LEVEL: "info"
+      ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED: "true"
+      JAVA_TOOL_OPTIONS: "-javaagent:/elastic/apm/agent/elastic-apm-agent.jar"
+  backend2: # no environment, run with defaults
+    image: docker.elastic.co/observability/apm-agent-nodejs:latest
+```
+
+And in your Kubernetes manifest you reference the name of the Agent configuration.
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-service
+  namespace: default
+  labels:
+    app: my-service
+    service: my-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-service
+  template:
+    metadata:
+
+      # APM Mutating WebHook configuration
+      annotations:
+        co.elastic.traces/agent: java-test
+
+      labels:
+        app: my-service-java
+        service: my-service
+    spec:
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - name: my-service
+        image: my-service:v1.0.0
+        ports:
+        - name: my-service
+          containerPort: 8080
+```
 
 # dev dependencies
 
