@@ -1,11 +1,19 @@
 [[apm-mutating-admission-webhook]]
 == APM mutating admission webhook
 
+:kube-admin-docs: https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/
+:helm-docs:       https://helm.sh/docs/
+
 preview::[]
 
-The APM mutating admission webhook for Kubernetes includes a **webhook receiver** that modifies pods
-so they are automatically instrumented by an Elastic APM agent and a **Helm chart** that manages the
-webhook receiver's lifecycle within Kubernetes.
+The APM mutating admission webhook for Kubernetes simplifies the instrumentation and
+configuration of your application pods.
+
+The webhook includes a <<apm-webhook,webhook receiver>> that modifies pods so they are automatically
+instrumented by an Elastic APM agent, and a <<apm-helm-chart,Helm chart>> that manages the webhook
+receiver's lifecycle within Kubernetes.
+
+Learn more below, or skip ahead to <<apm-get-started-webhook>>.
 
 [[apm-webhook]]
 === Webhook
@@ -36,6 +44,9 @@ making it available to the other container images.
 . Update the environment variables in the container images to configure
 auto-instrumentation with the copied agent binary
 
+TIP: To learn more about mutating webhooks,
+see the {kube-admin-docs}[Kubernetes Admission controller documentation].
+
 [[apm-helm-chart]]
 === Helm chart
 
@@ -43,29 +54,26 @@ The Helm chart manages the configuration of all associated manifest files for th
 webhook receiver, including generating certificates for securing communication
 between the Kubernetes API server and the webhook receiver.
 
+TIP: To learn more about Helm charts, see the {helm-docs}[Helm documentation].
+
 // Break content below to a new page
 
-[[apm-use-the-webhook]]
-== Use the webhook
+[[apm-get-started-webhook]]
+== Get started with the webhook
 
+To instrument and configure your application pods, complete the following steps:
 
-High-level steps:
-
-. Clone the `elastic/apm-mutating-webhook` repository
-. Configure the webhook with a Helm values file
-. Install the webhook with Helm
-. Add a pod template annotation to each pod you want to auto-instrument
+. <<apm-webhook-clone-repo>>
+. <<apm-webhook-configure-helm>>
+. <<apm-webhook-install-helm>>
+. <<apm-webhook-add-pod-annotation>>
 // Anything next? Restart the deployment maybe?
 
+[float]
+[[apm-webhook-clone-repo]]
+=== Clone the repository
 
-
-
-To install the APM mutating admission webhook, first clone the `elastic/apm-mutating-webhook` repository:
-
-// The APM mutating admission webhook is managed by the
-
-// The webhook is managed by the helmchart in this repo. To install it into your
-// cluster, clone this repo:
+Clone the `elastic/apm-mutating-webhook` repository:
 
 [source,bash]
 ----
@@ -73,9 +81,13 @@ git clone git@github.com:elastic/apm-mutating-webhook.git
 cd apm-mutating-webhook
 ----
 
+[float]
+[[apm-webhook-configure-helm]]
+=== Configure the webhook with a Helm values file
+
 The webhook is installed with a Helm chart.
 You can provide a custom webhook configuration using a Helm values file.
-Elastic provides a `custom.yaml` file as a starting point.
+Elastic provides a https://github.com/elastic/apm-mutating-webhook/blob/main/custom.yaml[`custom.yaml`] file as a starting point.
 
 Here's an example of a `custom.yaml` file that instruments a pod with the Elastic APM Java agent:
 
@@ -102,12 +114,16 @@ webhookConfig:
 <2> If you're using a secret token or API key to secure your deployment, you must list
 all of the namespaces where you want to auto-instrument pods. The secret token or API key
 will be stored as Kubernetes Secrets in each namespace.
-<3> The URL and port of your APM integration or server.
+<3> Elastic APM agent environment variables—for example, the APM Server URL, which specifies the URL and port of your APM integration or server.
 
 NOTE:: The `artifact` and `JAVA_TOOL_OPTIONS` keys should not be edited.
 
-Install the Helm chart with Helm.
-Pass in the `custom.yaml` configuration with the `--values` flag.
+[float]
+[[apm-webhook-install-helm]]
+=== Install the webhook with Helm
+
+Install the webhook with Helm.
+Pass in your `custom.yaml` configuration file created in the previous step with the `--values` flag.
 
 [source,bash]
 ----
@@ -118,12 +134,26 @@ helm upgrade \
   --values custom.yaml
 ----
 
-To auto-instrument a deployment, update its `spec.template.metadata.annotations` to include
-`co.elastic.traces/agent: java`. The webhook matches the value of `co.elastic.traces/agent`
-(in this case, `java`) to the config with the matching name under `webhookConfig.agents` defined in the
-Helm chart.
+[float]
+[[apm-webhook-add-pod-annotation]]
+=== Add a pod template annotation to each pod you want to auto-instrument
 
-Here's an example:
+To auto-instrument a deployment, update its `spec.template.metadata.annotations` to include the
+`co.elastic.traces/agent` key. The webhook matches the value of this key to the `webhookConfig.agents`
+value defined in your Helm values file.
+
+For example, if your Webhook values file includes the following:
+
+[source,yaml]
+----
+...
+webhookConfig:
+  agents:
+    java:
+...
+----
+
+Then your `co.elastic.traces/agent` value should be `java`:
 
 [source,yaml]
 ----
@@ -159,12 +189,11 @@ spec:
         - name: my-service
           containerPort: 8080
 ----
-<1> co.elastic.traces/agent:
+<1> `co.elastic.traces/agent: java` matches `co.elastic.traces/agent: java`
 
-Using the annotation value allows you to set custom environment variables and images per deployment.
+The `spec.template.metadata.annotations` value allows you to set custom environment variables and images per deployment.
 
-For example, `java-test` might have a different APM environment from `java-dev`,
-and `backend2` use a different APM agent than other deployments.
+For example, your Helm values file might configure a number of deployments: `java-test` might have a different APM environment from `java-dev`, and `backend2` use a different APM agent than other deployments.
 
 [source,yml]
 ----
