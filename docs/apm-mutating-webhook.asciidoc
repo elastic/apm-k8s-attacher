@@ -89,7 +89,7 @@ The webhook is installed with a Helm chart.
 You can provide a custom webhook configuration using a Helm values file.
 Elastic provides a https://github.com/elastic/apm-mutating-webhook/blob/main/custom.yaml[`custom.yaml`] file as a starting point.
 
-Here's an example of a `custom.yaml` file that instruments a pod with the Elastic APM Java agent:
+This sample `custom.yaml` file instruments a pod with the **Elastic APM Java agent**:
 
 [source,yaml]
 ----
@@ -101,11 +101,8 @@ apm:
     - my-name-space-02
 webhookConfig:
   agents:
-    java:
-      image: docker.elastic.co/observability/apm-agent-java:latest
-      artifact: "/usr/agent/elastic-apm-agent.jar"
+    java: <3>
       environment:
-        JAVA_TOOL_OPTIONS: "-javaagent:/elastic/apm/agent/elastic-apm-agent.jar"
         ELASTIC_APM_SERVER_URL: "https://apm-example.com:8200" <3>
         ELASTIC_APM_ENVIRONMENT: "prod"
         ELASTIC_APM_LOG_LEVEL: "info"
@@ -114,9 +111,38 @@ webhookConfig:
 <2> If you're using a secret token or API key to secure your deployment, you must list
 all of the namespaces where you want to auto-instrument pods. The secret token or API key
 will be stored as Kubernetes Secrets in each namespace.
-<3> Elastic APM agent environment variables—for example, the APM Server URL, which specifies the URL and port of your APM integration or server.
+<3> Fields written here are merged with pre-existing fields in https://github.com/elastic/apm-mutating-webhook/blob/main/apm-agent-auto-attach/values.yaml[`values.yaml`]
+<4> Elastic APM agent environment variables—for example, the APM Server URL, which specifies the URL and port of your APM integration or server.
 
-NOTE:: The `artifact` and `JAVA_TOOL_OPTIONS` keys should not be edited.
+This sample `custom.yaml` file instruments a pod with the **Elastic APM Node.js agent**:
+
+[source,yaml]
+----
+apm:
+  secret_token: SuP3RT0K3N <1>
+  namespaces: <2>
+    - default
+    - my-name-space-01
+    - my-name-space-02
+webhookConfig:
+  agents:
+    nodejs: <3>
+      environment:
+        ELASTIC_APM_SERVER_URL: "https://apm-example.com:8200" <3>
+        ELASTIC_APM_ENVIRONMENT: "prod"
+        ELASTIC_APM_LOG_LEVEL: "info"
+----
+<1> The `secret_token` for your deployment. Use `api_key` if using an API key instead.
+<2> If you're using a secret token or API key to secure your deployment, you must list
+all of the namespaces where you want to auto-instrument pods. The secret token or API key
+will be stored as Kubernetes Secrets in each namespace.
+<3> Fields written here are merged with pre-existing fields in https://github.com/elastic/apm-mutating-webhook/blob/main/apm-agent-auto-attach/values.yaml[`values.yaml`]
+<4> Elastic APM agent environment variables—for example, the APM Server URL, which specifies the URL and port of your APM integration or server.
+
+TIP: The examples above assume that you want to use the latest version of the Elastic APM agent.
+Advanced users may want to pin a version of the agent or provide a custom build.
+To do this, set your own `image`, `artifact`, and `environment.*OPTIONS` fields.
+Copy the formatting from https://github.com/elastic/apm-mutating-webhook/blob/main/apm-agent-auto-attach/values.yaml[`values.yaml`].
 
 [float]
 [[apm-webhook-install-helm]]
@@ -176,25 +202,16 @@ spec:
 
 The `spec.template.metadata.annotations` value allows you to set custom environment variables and images per deployment.
 
-For example, your Helm values file might configure a number of deployments: `java-test` might have a different APM environment from `java-dev`, and `backend2` use a different APM agent than other deployments.
+For example, your Helm values file might configure a number of deployments: `java-dev` might have a different APM environment from `java-prod`, and `backend2` use a different APM agent than other deployments.
 
 [source,yml]
 ----
 agents:
-  java-test:
-    image: docker.elastic.co/observability/apm-agent-java:latest
-    artifact: "/usr/agent/elastic-apm-agent.jar"
-    environment:
-      ELASTIC_APM_SERVER_URLS: "http://192.168.1.10:8200"
-      ELASTIC_APM_ENVIRONMENT: "test"
-      ELASTIC_APM_LOG_LEVEL: "debug"
-      ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED: "true"
-      JAVA_TOOL_OPTIONS: "-javaagent:/elastic/apm/agent/elastic-apm-agent.jar"
   java-dev:
     image: docker.elastic.co/observability/apm-agent-java:latest
     artifact: "/usr/agent/elastic-apm-agent.jar"
     environment:
-      ELASTIC_APM_SERVER_URLS: "http://192.168.1.11:8200"
+      ELASTIC_APM_SERVER_URLS: "http://192.168.1.10:8200"
       ELASTIC_APM_ENVIRONMENT: "dev"
       ELASTIC_APM_LOG_LEVEL: "debug"
       ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED: "true"
@@ -204,13 +221,22 @@ agents:
     artifact: "/usr/agent/elastic-apm-agent.jar"
     environment:
       ELASTIC_APM_SERVER_URLS: "http://192.168.1.11:8200"
-      ELASTIC_APM_SERVICE_NAME: "petclinic"
+      ELASTIC_APM_ENVIRONMENT: "prod"
       ELASTIC_APM_LOG_LEVEL: "info"
       ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED: "true"
       JAVA_TOOL_OPTIONS: "-javaagent:/elastic/apm/agent/elastic-apm-agent.jar"
-  backend2: # no environment, run with defaults
+  backend2:
     image: docker.elastic.co/observability/apm-agent-nodejs:latest
+    artifact: "/opt/nodejs/node_modules/elastic-apm-node"
+    environment:
+      NODE_OPTIONS: "-r /elastic/apm/agent/elastic-apm-node/start"
+      ELASTIC_APM_SERVER_URLS: "http://192.168.1.11:8200"
+      ELASTIC_APM_SERVICE_NAME: "petclinic"
+      ELASTIC_APM_LOG_LEVEL: "info"
 ----
+
+IMPORTANT: The only `webhookConfig.agents` values defined in https://github.com/elastic/apm-mutating-webhook/blob/main/apm-agent-auto-attach/values.yaml[`values.yaml`] are `java` and `nodejs`. When using other values,
+you must explicitly specify `image`, `artifact`, and `*OPTIONS` values.
 
 [float]
 [[apm-webhook-watch-data]]
