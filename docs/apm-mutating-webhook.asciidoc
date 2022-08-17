@@ -67,7 +67,7 @@ To instrument and configure your application pods, complete the following steps:
 . <<apm-webhook-configure-helm>>
 . <<apm-webhook-install-helm>>
 . <<apm-webhook-add-pod-annotation>>
-// Anything next? Restart the deployment maybe?
+. <<apm-webhook-watch-data>>
 
 [float]
 [[apm-webhook-clone-repo]]
@@ -160,36 +160,19 @@ Then your `co.elastic.traces/agent` value should be `java`:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: my-service
-  namespace: default
-  labels:
-    app: my-service
-    service: my-service
+  # ...
 spec:
   replicas: 1
-  selector:
-    matchLabels:
-      app: my-service
   template:
     metadata:
-
-      # APM Mutating WebHook configuration
       annotations:
         co.elastic.traces/agent: java <1>
-
       labels:
-        app: my-service-java
-        service: my-service
+        # ...
     spec:
-      dnsPolicy: ClusterFirstWithHostNet
-      containers:
-      - name: my-service
-        image: my-service:v1.0.0
-        ports:
-        - name: my-service
-          containerPort: 8080
+      #...
 ----
-<1> `co.elastic.traces/agent: java` matches `co.elastic.traces/agent: java`
+<1> The APM mutating webhook configuration. `co.elastic.traces/agent: java` matches `co.elastic.traces/agent: java`
 
 The `spec.template.metadata.annotations` value allows you to set custom environment variables and images per deployment.
 
@@ -228,3 +211,12 @@ agents:
   backend2: # no environment, run with defaults
     image: docker.elastic.co/observability/apm-agent-nodejs:latest
 ----
+
+[float]
+[[apm-webhook-watch-data]]
+=== Watch data flow into the {stack}
+
+You may not see data flow into the {stack} right away--that's normal.
+The addition of a pod annotation does not trigger an automatic restart.
+Therefor, existing pods will will not be effected by the APM mutating admission webhook. Only new pods--as they are created via the natural lifecycle of a Kubernetes deployment--will be instrumented.
+Restarting pods you'd like instrumented manually will speed up this process, but that workflow is too specific to individual deployments to make any recommendations.
