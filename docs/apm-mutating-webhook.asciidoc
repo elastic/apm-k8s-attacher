@@ -1,5 +1,5 @@
 [[apm-mutating-admission-webhook]]
-== APM mutating admission webhook
+= APM mutating admission webhook
 
 :kube-admin-docs: https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/
 :helm-docs:       https://helm.sh/docs/
@@ -15,8 +15,9 @@ receiver's lifecycle within Kubernetes.
 
 Learn more below, or skip ahead to <<apm-get-started-webhook>>.
 
+[float]
 [[apm-webhook]]
-=== Webhook
+== Webhook
 
 The webhook receiver modifies pods so they are automatically instrumented by an Elastic APM agent.
 Supported agents include:
@@ -31,8 +32,9 @@ API server, it looks through the pod spec for a specific, user-supplied annotati
 is mutated according to the webhook receiver's configuration. This mutated object is then returned to the
 Kubernetes API server which uses it as the source of truth for the object.
 
+[float]
 [[apm-mutation]]
-==== Mutation
+== Mutation
 
 The mutation that occurs is defined below:
 
@@ -47,8 +49,9 @@ auto-instrumentation with the copied agent binary
 TIP: To learn more about mutating webhooks,
 see the {kube-admin-docs}[Kubernetes Admission controller documentation].
 
+[float]
 [[apm-helm-chart]]
-=== Helm chart
+== Helm chart
 
 The Helm chart manages the configuration of all associated manifest files for the
 webhook receiver, including generating certificates for securing communication
@@ -103,7 +106,7 @@ webhookConfig:
   agents:
     java: <3>
       environment:
-        ELASTIC_APM_SERVER_URL: "https://apm-example.com:8200" <3>
+        ELASTIC_APM_SERVER_URL: "https://apm-example.com:8200" <4>
         ELASTIC_APM_ENVIRONMENT: "prod"
         ELASTIC_APM_LOG_LEVEL: "info"
 ----
@@ -128,7 +131,7 @@ webhookConfig:
   agents:
     nodejs: <3>
       environment:
-        ELASTIC_APM_SERVER_URL: "https://apm-example.com:8200" <3>
+        ELASTIC_APM_SERVER_URL: "https://apm-example.com:8200" <4>
         ELASTIC_APM_ENVIRONMENT: "prod"
         ELASTIC_APM_LOG_LEVEL: "info"
 ----
@@ -198,10 +201,9 @@ spec:
     spec:
       #...
 ----
-<1> The APM mutating webhook configuration. `co.elastic.traces/agent: java` matches `co.elastic.traces/agent: java`
+<1> The APM mutating webhook configuration `webhookConfig.agents.java` matches `co.elastic.traces/agent: java`
 
 The `spec.template.metadata.annotations` value allows you to set custom environment variables and images per deployment.
-
 For example, your Helm values file might configure a number of deployments: `java-dev` might have a different APM environment from `java-prod`, and `backend2` use a different APM agent than other deployments.
 
 [source,yml]
@@ -242,7 +244,7 @@ you must explicitly specify `image`, `artifact`, and `*OPTIONS` values.
 [[apm-webhook-watch-data]]
 === Watch data flow into the {stack}
 
-You may not see data flow into the {stack} right away--that's normal.
+You may not see data flow into the {stack} right away; that's normal.
 The addition of a pod annotation does not trigger an automatic restart.
 Therefor, existing pods will will not be effected by the APM mutating admission webhook. Only new pods--as they are created via the natural lifecycle of a Kubernetes deployment--will be instrumented.
 Restarting pods you'd like instrumented manually will speed up this process, but that workflow is too specific to individual deployments to make any recommendations.
