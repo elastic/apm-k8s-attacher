@@ -62,7 +62,9 @@ TIP: To learn more about Helm charts, see the {helm-docs}[Helm documentation].
 // Break content below to a new page
 
 [[apm-get-started-webhook]]
-== Get started with the webhook
+== Instrument and configure pods
+
+preview::[]
 
 To instrument and configure your application pods, complete the following steps:
 
