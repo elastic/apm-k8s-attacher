@@ -24,7 +24,6 @@ Supported agents include:
 
 // links will be added later
 * Java agent
-* .NET agent
 * Node.js agent
 
 The webhook receiver is invoked on pod creation. After receiving the object definition from the Kubernetes
