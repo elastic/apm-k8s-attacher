@@ -7,7 +7,7 @@ lifecycle within kubernetes.
 The software contained in this repo is considered a **technical preview**, and
 is not yet recommended for use in a production cluster.
 
-Learn more and get started in our [documentation](elastic.co/guide/en/apm/guide/current/apm-mutating-admission-webhook.html).
+Learn more and get started in our [documentation](https://elastic.co/guide/en/apm/guide/current/apm-mutating-admission-webhook.html).
 
 ## webhook
 
