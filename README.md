@@ -10,8 +10,8 @@ is not yet recommended for use in a production cluster.
 ## webhook
 
 The purpose of the webhook receiver is to modify pods so that they are
-automatically instrumented by an elastic apm agent. Currently, the java,
-nodejs, and dotnet agents are supported.
+automatically instrumented by an elastic apm agent. Currently, the Java and
+Node.js agents are supported.
 
 The webhook receiver is invoked on pod creation. After having received the
 object definition from the kubernetes api server, it looks through the pod spec
