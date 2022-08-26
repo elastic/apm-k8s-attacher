@@ -109,7 +109,10 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		s.sendError(err, w)
 		return
 	}
-	w.Write(resp)
+	if _, err := w.Write(resp); err != nil {
+		s.sendError(err, w)
+		return
+	}
 }
 
 func (s *server) sendError(err error, w http.ResponseWriter) {

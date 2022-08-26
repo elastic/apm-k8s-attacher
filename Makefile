@@ -17,6 +17,10 @@ update-licenses:
 	go run github.com/elastic/go-licenser@v0.4.0 .
 	go run github.com/elastic/go-licenser@v0.4.0 -ext .java .
 
+lint:
+	go run github.com/golangci/golangci-lint/cmd/golangci-lint@v1.48.0 version
+	go run github.com/golangci/golangci-lint/cmd/golangci-lint@v1.48.0 run
+
 .webhook: *.go Dockerfile
 	docker build -t $(REPO)/$(NAME):$(TAG) .
 	touch $@

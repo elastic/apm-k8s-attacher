@@ -47,9 +47,7 @@ func TestEnvVarPatch(t *testing.T) {
 		"KUBERNETES_POD_UID":   {},
 	}
 	for _, envVar := range environmentVariables {
-		if _, ok := m[envVar.Name]; ok {
-			delete(m, envVar.Name)
-		}
+		delete(m, envVar.Name)
 	}
 	assert.Len(t, m, 0)
 	customVars := environmentVariables[6:]
