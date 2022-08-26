@@ -22,7 +22,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -87,7 +87,7 @@ type agentConfig struct {
 const apmAnnotation = "co.elastic.traces/agent"
 
 func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	body, err := ioutil.ReadAll(r.Body)
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		s.sendError(err, w)
 		return
