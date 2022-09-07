@@ -149,7 +149,10 @@ func (s *server) mutate(admReview *admissionv1.AdmissionReview) error {
 	pT := admissionv1.PatchTypeJSONPatch
 	resp.PatchType = &pT
 
-	patch := createPatch(config, pod.Spec)
+	patch, err := createPatch(config, pod.Spec)
+	if err != nil {
+		return err
+	}
 
 	marshaled, err := json.Marshal(patch)
 	if err != nil {

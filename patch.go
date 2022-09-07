@@ -18,11 +18,13 @@
 package main
 
 import (
+	"fmt"
 	"path/filepath"
 	"strconv"
 	"strings"
 
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/util/validation"
 )
 
 // patchOperation is an operation of a JSON patch, see
@@ -55,18 +57,25 @@ var (
 	}
 )
 
-func createPatch(config agentConfig, spec corev1.PodSpec) []patchOperation {
+func createPatch(config agentConfig, spec corev1.PodSpec) ([]patchOperation, error) {
 	// Create patch operations
 	var patches []patchOperation
 
-	envVariables := generateEnvironmentVariables(config)
+	envVariables, err := generateEnvironmentVariables(config)
+	if err != nil {
+		return nil, err
+	}
 
 	// Add a volume mount to the pod
 	patches = append(patches, createVolumePatch(spec.Volumes == nil))
 
 	// Add an init container, that will fetch the agent Docker image and
 	// extract the agent jar to the agent volume
-	patches = append(patches, createInitContainerPatch(config, spec.InitContainers == nil))
+	patch, err := createInitContainerPatch(config, spec.InitContainers == nil)
+	if err != nil {
+		return nil, err
+	}
+	patches = append(patches, patch)
 
 	// Add agent env variables for each container at the pod, as well as
 	// the volume mount
@@ -79,7 +88,7 @@ func createPatch(config agentConfig, spec corev1.PodSpec) []patchOperation {
 		patches = append(patches, createVolumeMountsPatch(container.VolumeMounts == nil, index))
 		patches = append(patches, createEnvVariablesPatches(envVars, container.Env == nil, index)...)
 	}
-	return patches
+	return patches, nil
 }
 
 func uniqueEnvironmentVariables(configEnvironmentVariables, containerEnvironmentVariables []corev1.EnvVar) []corev1.EnvVar {
@@ -100,7 +109,7 @@ func uniqueEnvironmentVariables(configEnvironmentVariables, containerEnvironment
 	return unique
 }
 
-func generateEnvironmentVariables(config agentConfig) []corev1.EnvVar {
+func generateEnvironmentVariables(config agentConfig) ([]corev1.EnvVar, error) {
 	optional := true
 	vars := []corev1.EnvVar{{
 		Name: "ELASTIC_APM_SECRET_TOKEN",
@@ -147,7 +156,12 @@ func generateEnvironmentVariables(config agentConfig) []corev1.EnvVar {
 	for name, value := range config.Environment {
 		vars = append(vars, corev1.EnvVar{Name: name, Value: value})
 	}
-	return vars
+	for _, ev := range vars {
+		if errs := validation.IsEnvVarName(ev.Name); len(errs) != 0 {
+			return nil, fmt.Errorf("failed to validate variable name: %v", errs)
+		}
+	}
+	return vars, nil
 }
 
 func createVolumePatch(createArray bool) patchOperation {
@@ -165,7 +179,7 @@ func createVolumePatch(createArray bool) patchOperation {
 	}
 }
 
-func createInitContainerPatch(config agentConfig, createArray bool) patchOperation {
+func createInitContainerPatch(config agentConfig, createArray bool) (patchOperation, error) {
 	bp := filepath.Base(config.Image)
 	name := strings.Split(bp, ":")
 	agentInitContainer := corev1.Container{
@@ -176,18 +190,23 @@ func createInitContainerPatch(config agentConfig, createArray bool) patchOperati
 		// *if needed*?
 		Command: []string{"cp", "-v", "-r", config.ArtifactPath, mountPath},
 	}
+
+	if errs := validation.IsDNS1123Label(agentInitContainer.Name); len(errs) != 0 {
+		return patchOperation{}, fmt.Errorf("init container name (%s) is not a valid DNS_LABEL: %v", agentInitContainer.Name, errs)
+	}
+
 	if createArray {
 		return patchOperation{
 			Op:    "add",
 			Path:  "/spec/initContainers",
 			Value: []corev1.Container{agentInitContainer},
-		}
+		}, nil
 	}
 	return patchOperation{
 		Op:    "add",
 		Path:  "/spec/initContainers/-",
 		Value: agentInitContainer,
-	}
+	}, nil
 }
 
 // If the env variable array does not already exist, this method will return a

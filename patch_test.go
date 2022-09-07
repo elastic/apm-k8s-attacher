@@ -32,7 +32,8 @@ func TestEnvVarPatch(t *testing.T) {
 			"ELASTIC_APM_SERVER_URL": "abc",
 		},
 	}
-	vars := generateEnvironmentVariables(config)
+	vars, errs := generateEnvironmentVariables(config)
+	assert.Nil(t, errs)
 	patches := createEnvVariablesPatches(vars, true, 0)
 	assert.Len(t, patches, 1)
 	environmentVariables := patches[0].Value.([]corev1.EnvVar)
@@ -60,7 +61,8 @@ func TestEnvVarPatch(t *testing.T) {
 
 func TestAddAPMServerURLIfNotPresent(t *testing.T) {
 	config := agentConfig{Environment: map[string]string{}}
-	vars := generateEnvironmentVariables(config)
+	vars, errs := generateEnvironmentVariables(config)
+	assert.Nil(t, errs)
 	patches := createEnvVariablesPatches(vars, true, 0)
 	assert.Len(t, patches, 1)
 	environmentVariables := patches[0].Value.([]corev1.EnvVar)
@@ -77,7 +79,8 @@ func TestInitContainerPatch(t *testing.T) {
 		Image:        "stuartnelson3/agent-image:1.2.3",
 		ArtifactPath: "/tmp/artifact.jar",
 	}
-	patch := createInitContainerPatch(config, true)
+	patch, err := createInitContainerPatch(config, true)
+	assert.NoError(t, err)
 	initContainers := patch.Value.([]corev1.Container)
 	assert.Len(t, initContainers, 1)
 	ic := initContainers[0]
