@@ -158,7 +158,7 @@ func generateEnvironmentVariables(config agentConfig) ([]corev1.EnvVar, error) {
 	}
 	for _, ev := range vars {
 		if errs := validation.IsEnvVarName(ev.Name); len(errs) != 0 {
-			return nil, fmt.Errorf("failed to validate variable name: %v", errs)
+			return nil, fmt.Errorf("failed to validate environment variable %q: %v", ev.Name, errs)
 		}
 	}
 	return vars, nil
