@@ -46,6 +46,18 @@ func main() {
 		log.Fatalf("error reading config: %v", err)
 	}
 
+	for k, ac := range cfg.Agents {
+		if k != "java" && k != "nodejs" {
+			if ac.Image == "" {
+				log.Fatalf("custom agent %q is missing Image", k)
+			}
+
+			if ac.ArtifactPath == "" {
+				log.Fatalf("custom agent %q is missing Artifact", k)
+			}
+		}
+	}
+
 	ss := &server{
 		l: log.Default(),
 		c: cfg.Agents,
