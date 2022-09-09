@@ -192,7 +192,9 @@ func createInitContainerPatch(config agentConfig, createArray bool) (patchOperat
 	}
 
 	if errs := validation.IsDNS1123Label(agentInitContainer.Name); len(errs) != 0 {
-		return patchOperation{}, fmt.Errorf("init container name (%s) is not a valid DNS_LABEL: %v", agentInitContainer.Name, errs)
+		return patchOperation{}, fmt.Errorf("failed to extract container name from image (%s): init container name (%s) is not a valid DNS_LABEL: %v",
+			config.Image, agentInitContainer.Name, errs,
+		)
 	}
 
 	if createArray {
