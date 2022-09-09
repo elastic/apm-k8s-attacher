@@ -39,3 +39,10 @@ func TestYAMLParse(t *testing.T) {
 	assert.Contains(t, java.Environment, "ELASTIC_APM_LOG_LEVEL")
 	assert.Contains(t, java.Environment, "ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED")
 }
+
+func TestYAMLParseBad(t *testing.T) {
+	p := "testdata/bad.yaml"
+	cfg, err := parseConfig(p)
+	require.Error(t, err)
+	require.Nil(t, cfg)
+}
