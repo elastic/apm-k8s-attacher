@@ -67,22 +67,21 @@ preview::[]
 
 To instrument and configure your application pods, complete the following steps:
 
-. <<apm-webhook-clone-repo>>
+. <<apm-webhook-add-helm-repo>>
 . <<apm-webhook-configure-helm>>
 . <<apm-webhook-install-helm>>
 . <<apm-webhook-add-pod-annotation>>
 . <<apm-webhook-watch-data>>
 
 [float]
-[[apm-webhook-clone-repo]]
-=== Clone the repository
+[[apm-webhook-add-helm-repo]]
+=== Add the helm repository to Helm
 
-Clone the `elastic/apm-mutating-webhook` repository:
+Add the Elastic helm chart repository to helm:
 
 [source,bash]
 ----
-git clone git@github.com:elastic/apm-mutating-webhook.git
-cd apm-mutating-webhook
+helm repo add elastic https://helm.elastic.co
 ----
 
 [float]
@@ -157,12 +156,13 @@ Pass in your `custom.yaml` configuration file created in the previous step with 
 
 [source,bash]
 ----
-helm upgrade \
-  --install webhook apm-agent-auto-attach/ \
+helm upgrade elastic/apm-agent-auto-attach \
+  --install [name] \ <1>
   --namespace=elastic-apm \
   --create-namespace \
   --values custom.yaml
 ----
+<1> The name for the installed helm chart in Kubernetes.
 
 [float]
 [[apm-webhook-add-pod-annotation]]
