@@ -46,18 +46,6 @@ func main() {
 		log.Fatalf("error reading config: %v", err)
 	}
 
-	for k, ac := range cfg.Agents {
-		if k != "java" && k != "nodejs" {
-			if ac.Image == "" {
-				log.Fatalf("custom agent %q is missing Image", k)
-			}
-
-			if ac.ArtifactPath == "" {
-				log.Fatalf("custom agent %q is missing Artifact", k)
-			}
-		}
-	}
-
 	ss := &server{
 		l: log.Default(),
 		c: cfg.Agents,
@@ -78,7 +66,21 @@ func parseConfig(configPath string) (*config, error) {
 	defer f.Close()
 
 	c := new(config)
-	return c, yaml.NewDecoder(f).Decode(c)
+	if err := yaml.NewDecoder(f).Decode(c); err != nil {
+		return nil, fmt.Errorf("failed to decode config: %w", err)
+	}
+
+	for k, ac := range c.Agents {
+		if ac.Image == "" {
+			return nil, fmt.Errorf("custom agent %q is missing image", k)
+		}
+
+		if ac.ArtifactPath == "" {
+			return nil, fmt.Errorf("custom agent %q is missing artifact", k)
+		}
+	}
+
+	return c, nil
 }
 
 type server struct {
