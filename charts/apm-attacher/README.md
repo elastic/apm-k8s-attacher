@@ -1,6 +1,6 @@
 # APM Agent Auto Attach Helm Chart
 
-[![Artifact HUB](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/elastic)](https://artifacthub.io/packages/helm/elastic/apm-agent-auto-attach)
+[![Artifact HUB](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/elastic)](https://artifacthub.io/packages/helm/elastic/apm-attacher)
 
 The APM mutating admission webhook for Kubernetes simplifies the instrumentation and
 configuration of your application pods.
