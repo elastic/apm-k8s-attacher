@@ -45,4 +45,9 @@ func TestYAMLParseBad(t *testing.T) {
 	cfg, err := parseConfig(p)
 	require.Error(t, err)
 	require.Nil(t, cfg)
+
+	p = "testdata/bad2.yaml"
+	cfg, err = parseConfig(p)
+	require.Error(t, err)
+	require.Nil(t, cfg)
 }
