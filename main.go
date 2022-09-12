@@ -72,11 +72,11 @@ func parseConfig(configPath string) (*config, error) {
 
 	for k, ac := range c.Agents {
 		if ac.Image == "" {
-			return nil, fmt.Errorf("custom agent %q is missing image", k)
+			return nil, fmt.Errorf("custom agent %q is missing 'image' value", k)
 		}
 
 		if ac.ArtifactPath == "" {
-			return nil, fmt.Errorf("custom agent %q is missing artifact", k)
+			return nil, fmt.Errorf("custom agent %q is missing 'artifact' value", k)
 		}
 	}
 
