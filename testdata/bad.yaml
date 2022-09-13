@@ -1,7 +1,5 @@
 agents:
   java:
-    image: docker.com/elastic/agent-java:1.2.3
-    artifact: foo
     environment:
       ELASTIC_APM_SERVER_URLS: "http://34.78.173.219:8200"
       ELASTIC_APM_SERVICE_NAME: "petclinic"
