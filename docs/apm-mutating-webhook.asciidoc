@@ -1,17 +1,16 @@
 [[apm-mutating-admission-webhook]]
-= APM mutating admission webhook
+= APM Attacher
 
 :kube-admin-docs: https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/
 :helm-docs:       https://helm.sh/docs/
 
 preview::[]
 
-The APM mutating admission webhook for Kubernetes simplifies the instrumentation and
-configuration of your application pods.
+The APM attacher for Kubernetes simplifies the instrumentation and configuration of your application pods.
 
-The webhook includes a <<apm-webhook,webhook receiver>> that modifies pods so they are automatically
-instrumented by an Elastic APM agent, and a <<apm-helm-chart,Helm chart>> that manages the webhook
-receiver's lifecycle within Kubernetes.
+The attacher includes a <<apm-webhook,webhook receiver>> that modifies pods so they are automatically
+instrumented by an Elastic APM agent, and a <<apm-helm-chart,Helm chart>> that manages its lifecycle within
+Kubernetes.
 
 Learn more below, or skip ahead to <<apm-get-started-webhook>>.
 
@@ -67,29 +66,28 @@ preview::[]
 
 To instrument and configure your application pods, complete the following steps:
 
-. <<apm-webhook-clone-repo>>
+. <<apm-webhook-add-helm-repo>>
 . <<apm-webhook-configure-helm>>
 . <<apm-webhook-install-helm>>
 . <<apm-webhook-add-pod-annotation>>
 . <<apm-webhook-watch-data>>
 
 [float]
-[[apm-webhook-clone-repo]]
-=== Clone the repository
+[[apm-webhook-add-helm-repo]]
+=== Add the helm repository to Helm
 
-Clone the `elastic/apm-mutating-webhook` repository:
+Add the Elastic helm chart repository to helm:
 
 [source,bash]
 ----
-git clone git@github.com:elastic/apm-mutating-webhook.git
-cd apm-mutating-webhook
+helm repo add elastic https://helm.elastic.co
 ----
 
 [float]
 [[apm-webhook-configure-helm]]
 === Configure the webhook with a Helm values file
 
-The webhook is installed with a Helm chart.
+The APM Attacher's webhook can be installed from a Helm chart.
 You can provide a custom webhook configuration using a Helm values file.
 Elastic provides a https://github.com/elastic/apm-mutating-webhook/blob/main/custom.yaml[`custom.yaml`] file as a starting point.
 
@@ -115,7 +113,7 @@ webhookConfig:
 <2> If you're using a secret token or API key to secure your deployment, you must list
 all of the namespaces where you want to auto-instrument pods. The secret token or API key
 will be stored as Kubernetes Secrets in each namespace.
-<3> Fields written here are merged with pre-existing fields in https://github.com/elastic/apm-mutating-webhook/blob/main/apm-agent-auto-attach/values.yaml[`values.yaml`]
+<3> Fields written here are merged with pre-existing fields in https://github.com/elastic/apm-mutating-webhook/blob/main/apm-attacher/values.yaml[`values.yaml`]
 <4> Elastic APM agent environment variables—for example, the APM Server URL, which specifies the URL and port of your APM integration or server.
 
 This sample `custom.yaml` file instruments a pod with the **Elastic APM Node.js agent**:
@@ -140,13 +138,13 @@ webhookConfig:
 <2> If you're using a secret token or API key to secure your deployment, you must list
 all of the namespaces where you want to auto-instrument pods. The secret token or API key
 will be stored as Kubernetes Secrets in each namespace.
-<3> Fields written here are merged with pre-existing fields in https://github.com/elastic/apm-mutating-webhook/blob/main/apm-agent-auto-attach/values.yaml[`values.yaml`]
+<3> Fields written here are merged with pre-existing fields in https://github.com/elastic/apm-mutating-webhook/blob/main/apm-attacher/values.yaml[`values.yaml`]
 <4> Elastic APM agent environment variables—for example, the APM Server URL, which specifies the URL and port of your APM integration or server.
 
 TIP: The examples above assume that you want to use the latest version of the Elastic APM agent.
 Advanced users may want to pin a version of the agent or provide a custom build.
 To do this, set your own `image`, `artifact`, and `environment.*OPTIONS` fields.
-Copy the formatting from https://github.com/elastic/apm-mutating-webhook/blob/main/apm-agent-auto-attach/values.yaml[`values.yaml`].
+Copy the formatting from https://github.com/elastic/apm-mutating-webhook/blob/main/apm-attacher/values.yaml[`values.yaml`].
 
 [float]
 [[apm-webhook-install-helm]]
@@ -157,12 +155,14 @@ Pass in your `custom.yaml` configuration file created in the previous step with 
 
 [source,bash]
 ----
-helm upgrade \
-  --install webhook apm-agent-auto-attach/ \
-  --namespace=elastic-apm \
+helm upgrade elastic/apm-attacher \
+  --install [name] \ <1>
+  --namespace=elastic-apm \ <2>
   --create-namespace \
   --values custom.yaml
 ----
+<1> The name for the installed helm chart in Kubernetes.
+<2> The APM Attacher needs to be installed in a dedicated namespace. Any pods created in the same namespace as the attacher will be ignored.
 
 [float]
 [[apm-webhook-add-pod-annotation]]
@@ -202,7 +202,7 @@ spec:
     spec:
       #...
 ----
-<1> The APM mutating webhook configuration `webhookConfig.agents.java` matches `co.elastic.traces/agent: java`
+<1> The APM attacher configuration `webhookConfig.agents.java` matches `co.elastic.traces/agent: java`
 
 The `spec.template.metadata.annotations` value allows you to set custom environment variables and images per deployment.
 For example, your Helm values file might configure a number of deployments: `java-dev` might have a different APM environment from `java-prod`, and `backend2` use a different APM agent than other deployments.
@@ -238,7 +238,7 @@ agents:
       ELASTIC_APM_LOG_LEVEL: "info"
 ----
 
-IMPORTANT: The only `webhookConfig.agents` values defined in https://github.com/elastic/apm-mutating-webhook/blob/main/apm-agent-auto-attach/values.yaml[`values.yaml`] are `java` and `nodejs`. When using other values,
+IMPORTANT: The only `webhookConfig.agents` values defined in https://github.com/elastic/apm-mutating-webhook/blob/main/apm-attacher/values.yaml[`values.yaml`] are `java` and `nodejs`. When using other values,
 you must explicitly specify `image`, `artifact`, and `*OPTIONS` values.
 
 [float]
@@ -247,5 +247,5 @@ you must explicitly specify `image`, `artifact`, and `*OPTIONS` values.
 
 You may not see data flow into the {stack} right away; that's normal.
 The addition of a pod annotation does not trigger an automatic restart.
-Therefor, existing pods will will not be effected by the APM mutating admission webhook. Only new pods--as they are created via the natural lifecycle of a Kubernetes deployment--will be instrumented.
+Therefore, existing pods will will not be effected by the APM Attacher. Only new pods--as they are created via the natural lifecycle of a Kubernetes deployment--will be instrumented.
 Restarting pods you'd like instrumented manually will speed up this process, but that workflow is too specific to individual deployments to make any recommendations.

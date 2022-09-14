@@ -9,8 +9,8 @@ GO_CI_LINT=github.com/golangci/golangci-lint/cmd/golangci-lint@$(GO_CI_LINT_VERS
 
 export HELM_INSTALL_DIR=$(PWD)/bin
 HELM=$(HELM_INSTALL_DIR)/helm
-HELM_CHART?=./apm-agent-auto-attach
-HELM_CHART_NAME?=dev-apm-attach
+HELM_CHART?=./charts/apm-attacher
+HELM_CHART_NAME?=dev-apm-attacher
 
 .PHONY: gen-notice
 gen-notice:
@@ -55,7 +55,7 @@ install-chart: $(HELM)
 
 .PHONY: show-version
 show-version:
-	@echo v$(shell grep version: apm-agent-auto-attach/Chart.yaml | cut -d':' -f2 | tr -d '"'  | tr -d ' ')
+	@echo v$(shell grep version: $(HELM_CHART)/Chart.yaml | cut -d':' -f2 | tr -d '"'  | tr -d ' ')
 
 .PHONY: build_nodejs_image
 build_nodejs_image:
