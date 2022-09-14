@@ -12,6 +12,9 @@ pipeline {
     RELEASE_URL_MESSAGE = "(<https://github.com/elastic/${env.REPO}/releases/tag/${env.TAG_NAME}|${env.TAG_NAME}>)"
     NOTIFY_TO = "build-apm+${env.REPO}@elastic.co"
     SLACK_CHANNEL = '#apm-agent-php'
+    DOCKER_IMAGE_NAME = 'apm-attacher'
+    DOCKER_SECRET = 'secret/apm-team/ci/docker-registry/prod'
+    DOCKER_REGISTRY = 'docker.elastic.co'
   }
   options {
     timeout(time: 1, unit: 'HOURS')
@@ -92,20 +95,9 @@ pipeline {
       }
     }
     stage('Package') {
-      environment {
-        DOCKER_SECRET = 'secret/apm-team/ci/docker-registry/prod'
-        DOCKER_REGISTRY = 'docker.elastic.co'
-      }
       steps {
         withGithubNotify(context: 'Package') {
-          deleteDir()
-          unstash 'source'
-          dir("${BASE_DIR}"){
-            withMageEnv(){
-              dockerLogin(secret: env.DOCKER_SECRET, registry: env.DOCKER_REGISTRY)
-              sh(label: 'Package & Push', script: "./.ci/docker-package-push.sh ${env.DOCKER_REGISTRY}/observability ${env.REPO} ${env.GIT_BASE_COMMIT}")
-            }
-          }
+          publishDockerImage(imageName: "${env.DOCKER_IMAGE_NAME}", label: "${env.GIT_BASE_COMMIT}")
         }
       }
     }
@@ -115,12 +107,10 @@ pipeline {
         beforeAgent true
         tag pattern: 'v\\d+.*', comparator: 'REGEXP'
       }
-      steps {
-        deleteDir()
-        unstash 'source'
-        dir("${BASE_DIR}"){
-          withMageEnv(){
-            echo 'TBD'
+      stages {
+        stage('Docker') {
+          steps {
+            publishDockerImage(imageName: "${env.DOCKER_IMAGE_NAME}", label: "${env.GIT_BASE_COMMIT}")
           }
         }
       }
@@ -137,6 +127,19 @@ pipeline {
   post {
     cleanup {
       notifyBuildResult(prComment: true)
+    }
+  }
+}
+
+def publishDockerImage(def args = [:]) {
+  def dockerImageName = args.imageName
+  def label = args.label
+  deleteDir()
+  unstash 'source'
+  dir("${BASE_DIR}"){
+    withMageEnv(){
+      dockerLogin(secret: env.DOCKER_SECRET, registry: env.DOCKER_REGISTRY)
+      sh(label: 'Package & Push', script: "./.ci/docker-package-push.sh ${env.DOCKER_REGISTRY}/observability ${dockerImageName} ${label}")
     }
   }
 }
