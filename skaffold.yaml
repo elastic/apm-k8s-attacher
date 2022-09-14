@@ -11,8 +11,8 @@ build:
 deploy:
   helm:
     releases:
-      - name: apm-agent-auto-attach
-        chartPath: apm-agent-auto-attach
+      - name: apm-attacher
+        chartPath: apm-attacher
         artifactOverrides:
           image: elastic/apm-mutating-webhook
         imageStrategy:
