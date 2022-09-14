@@ -66,7 +66,21 @@ func parseConfig(configPath string) (*config, error) {
 	defer f.Close()
 
 	c := new(config)
-	return c, yaml.NewDecoder(f).Decode(c)
+	if err := yaml.NewDecoder(f).Decode(c); err != nil {
+		return nil, fmt.Errorf("failed to decode config: %w", err)
+	}
+
+	for k, ac := range c.Agents {
+		if ac.Image == "" {
+			return nil, fmt.Errorf("custom agent %q is missing 'image' value", k)
+		}
+
+		if ac.ArtifactPath == "" {
+			return nil, fmt.Errorf("custom agent %q is missing 'artifact' value", k)
+		}
+	}
+
+	return c, nil
 }
 
 type server struct {
@@ -149,7 +163,10 @@ func (s *server) mutate(admReview *admissionv1.AdmissionReview) error {
 	pT := admissionv1.PatchTypeJSONPatch
 	resp.PatchType = &pT
 
-	patch := createPatch(config, pod.Spec)
+	patch, err := createPatch(config, pod.Spec)
+	if err != nil {
+		return err
+	}
 
 	marshaled, err := json.Marshal(patch)
 	if err != nil {

@@ -39,3 +39,17 @@ func TestYAMLParse(t *testing.T) {
 	assert.Contains(t, java.Environment, "ELASTIC_APM_LOG_LEVEL")
 	assert.Contains(t, java.Environment, "ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED")
 }
+
+func TestYAMLParseBad(t *testing.T) {
+	p := "testdata/bad.yaml"
+	cfg, err := parseConfig(p)
+	require.Error(t, err)
+	require.Nil(t, cfg)
+	require.Equal(t, `custom agent "java" is missing 'image' value`, err.Error())
+
+	p = "testdata/bad2.yaml"
+	cfg, err = parseConfig(p)
+	require.Error(t, err)
+	require.Nil(t, cfg)
+	require.Equal(t, `custom agent "java" is missing 'artifact' value`, err.Error())
+}

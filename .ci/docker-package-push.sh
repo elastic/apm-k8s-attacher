@@ -29,7 +29,3 @@ make .webhook
 
 echo "INFO: Push docker image ${fqn}"
 docker push "${fqn}"
-
-echo "INFO: Push docker image ${latest}"
-docker tag "${fqn}" "${latest}"
-docker push "${latest}"

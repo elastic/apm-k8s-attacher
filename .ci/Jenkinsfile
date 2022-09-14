@@ -95,6 +95,10 @@ pipeline {
       }
     }
     stage('Package') {
+      when {
+        beforeAgent true
+        not { changeRequest() }
+      }
       steps {
         withGithubNotify(context: 'Package') {
           publishDockerImage(imageName: "${env.DOCKER_IMAGE_NAME}", imageTag: "${env.GIT_BASE_COMMIT}", shortGitSha: true)
