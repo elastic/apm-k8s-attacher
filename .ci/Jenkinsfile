@@ -11,7 +11,7 @@ pipeline {
     PIPELINE_LOG_LEVEL = 'INFO'
     RELEASE_URL_MESSAGE = "(<https://github.com/elastic/${env.REPO}/releases/tag/${env.TAG_NAME}|${env.TAG_NAME}>)"
     NOTIFY_TO = "build-apm+${env.REPO}@elastic.co"
-    SLACK_CHANNEL = '#apm-agent-php'
+    SLACK_CHANNEL = '#apm-server'
     DOCKER_IMAGE_NAME = 'apm-attacher'
     DOCKER_SECRET = 'secret/apm-team/ci/docker-registry/prod'
     DOCKER_REGISTRY = 'docker.elastic.co'
