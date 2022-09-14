@@ -97,7 +97,7 @@ pipeline {
     stage('Package') {
       steps {
         withGithubNotify(context: 'Package') {
-          publishDockerImage(imageName: "${env.DOCKER_IMAGE_NAME}", label: "${env.GIT_BASE_COMMIT}", shortGitSha: true)
+          publishDockerImage(imageName: "${env.DOCKER_IMAGE_NAME}", imageTag: "${env.GIT_BASE_COMMIT}", shortGitSha: true)
         }
       }
     }
@@ -110,7 +110,7 @@ pipeline {
       stages {
         stage('Docker') {
           steps {
-            publishDockerImage(imageName: "${env.DOCKER_IMAGE_NAME}", label: "${env.GIT_BASE_COMMIT}")
+            publishDockerImage(imageName: "${env.DOCKER_IMAGE_NAME}", imageTag: "${env.GIT_BASE_COMMIT}")
           }
         }
       }
@@ -132,15 +132,15 @@ pipeline {
 }
 
 def publishDockerImage(def args = [:]) {
-  def dockerImageName = args.imageName
-  def label = args.label
+  def imageName = args.imageName
+  def imageTag = args.imageTag
   def shortGitSha = args.get('shortGitSha', false)
   deleteDir()
   unstash 'source'
   dir("${BASE_DIR}"){
     withMageEnv(){
       dockerLogin(secret: env.DOCKER_SECRET, registry: env.DOCKER_REGISTRY)
-      sh(label: 'Package & Push', script: "./.ci/docker-package-push.sh ${env.DOCKER_REGISTRY}/observability ${dockerImageName} ${label} ${shortGitSha}")
+      sh(label: 'Package & Push', script: "./.ci/docker-package-push.sh ${env.DOCKER_REGISTRY}/observability ${imageName} ${imageTag} ${shortGitSha}")
     }
   }
 }
