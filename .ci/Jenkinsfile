@@ -110,7 +110,7 @@ pipeline {
       stages {
         stage('Docker') {
           steps {
-            publishDockerImage(imageName: "${env.DOCKER_IMAGE_NAME}", imageTag: "${env.GIT_BASE_COMMIT}")
+            publishDockerImage(imageName: "${env.DOCKER_IMAGE_NAME}", imageTag: "${env.TAG_NAME}")
           }
         }
       }
