@@ -1,4 +1,4 @@
-# APM Agent Auto Attach Helm Chart
+# APM Attacher Helm Chart
 
 [![Artifact HUB](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/elastic)](https://artifacthub.io/packages/helm/elastic/apm-attacher)
 
