@@ -56,3 +56,11 @@ install-chart: $(HELM)
 .PHONY: show-version
 show-version:
 	@echo v$(shell grep version: apm-agent-auto-attach/Chart.yaml | cut -d':' -f2 | tr -d '"'  | tr -d ' ')
+
+.PHONY: build_nodejs_image
+build_nodejs_image:
+	@ docker build --platform=amd64 -t docker.elastic.co/observability/nodejs-hello-world:latest test/nodejs
+
+.PHONY: push_nodejs_image
+push_nodejs_image:
+	@ docker push docker.elastic.co/observability/nodejs-hello-world:latest

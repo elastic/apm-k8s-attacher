@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: nodejs-demo-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nodejs-demo
+  template:
+    metadata:
+      annotations:
+        co.elastic.traces/agent: nodejs
+      labels:
+        app: nodejs-demo
+    spec:
+      containers:
+      - name: node
+        image: docker.elastic.co/observability/nodejs-hello-world:latest
+        ports:
+        - containerPort: 8080
+        env:
+          - name: ELASTIC_APM_SERVICE_NAME
+            value: nodejs-demo-app
+        resources:
+          limits:
+            memory: 128M
+            cpu: 500m
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 3
