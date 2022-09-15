@@ -1,5 +1,5 @@
 image:
-  repository: docker.elastic.co/observability/apm-mutating-webhook
+  repository: docker.elastic.co/observability/apm-attacher
   tag: latest
   pullPolicy: Always
   pullSecrets: []
