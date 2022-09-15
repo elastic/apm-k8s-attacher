@@ -169,7 +169,7 @@ helm upgrade elastic/apm-attacher \
 === Add a pod template annotation to each pod you want to auto-instrument
 
 To auto-instrument a deployment, update its `spec.template.metadata.annotations` to include the
-`co.elastic.traces/agent` key. The webhook matches the value of this key to the `webhookConfig.agents`
+`co.elastic.apm/attach` key. The webhook matches the value of this key to the `webhookConfig.agents`
 value defined in your Helm values file.
 
 For example, if your Webhook values file includes the following:
@@ -183,7 +183,7 @@ webhookConfig:
 ...
 ----
 
-Then your `co.elastic.traces/agent` value should be `java`:
+Then your `co.elastic.apm/attach` value should be `java`:
 
 [source,yaml]
 ----
@@ -196,13 +196,13 @@ spec:
   template:
     metadata:
       annotations:
-        co.elastic.traces/agent: java <1>
+        co.elastic.apm/attach: java <1>
       labels:
         # ...
     spec:
       #...
 ----
-<1> The APM attacher configuration `webhookConfig.agents.java` matches `co.elastic.traces/agent: java`
+<1> The APM attacher configuration `webhookConfig.agents.java` matches `co.elastic.apm/attach: java`
 
 The `spec.template.metadata.annotations` value allows you to set custom environment variables and images per deployment.
 For example, your Helm values file might configure a number of deployments: `java-dev` might have a different APM environment from `java-prod`, and `backend2` use a different APM agent than other deployments.
