@@ -1,0 +1,3 @@
+# add 'apm-k8s-attacher' label to all new issues
+apm-k8s-attacher:
+  - '.*'
