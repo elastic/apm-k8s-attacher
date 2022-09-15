@@ -18,6 +18,7 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -52,4 +53,52 @@ func TestYAMLParseBad(t *testing.T) {
 	require.Error(t, err)
 	require.Nil(t, cfg)
 	require.Equal(t, `custom agent "java" is missing 'artifact' value`, err.Error())
+}
+
+func TestGetConfig(t *testing.T) {
+	configs := map[string]agentConfig{
+		"nodejs": {Image: "nodejs-image"},
+		"java":   {Image: "java-image"},
+		"dotnet": {Image: "dotnet-image"},
+	}
+	for _, agentName := range []string{"nodejs", "java", "dotnet"} {
+		t.Run(fmt.Sprint("legacy annotation", agentName), func(t *testing.T) {
+			config, err := getConfig(configs, map[string]string{
+				legacyAPMAnnotation: agentName,
+			})
+			assert.NoError(t, err)
+			assert.Equal(t, agentConfig{
+				Image: fmt.Sprint(agentName, "-image"),
+			}, config)
+		})
+
+		t.Run("supported annotation", func(t *testing.T) {
+			config, err := getConfig(configs, map[string]string{
+				apmAnnotation: agentName,
+			})
+			assert.NoError(t, err)
+			assert.Equal(t, agentConfig{
+				Image: fmt.Sprint(agentName, "-image"),
+			}, config)
+		})
+	}
+	t.Run("empty annotation", func(t *testing.T) {
+		config, err := getConfig(configs, nil)
+		assert.EqualError(t, err, "no annotations present")
+		assert.Empty(t, config)
+	})
+	t.Run("invalid annotation", func(t *testing.T) {
+		config, err := getConfig(configs, map[string]string{
+			"co.elastic.apm/something": "nodejs",
+		})
+		assert.EqualError(t, err, "missing annotation `co.elastic.apm/attach`")
+		assert.Empty(t, config)
+	})
+	t.Run("invalid config", func(t *testing.T) {
+		config, err := getConfig(configs, map[string]string{
+			apmAnnotation: "go",
+		})
+		assert.EqualError(t, err, "no config for agent `go`")
+		assert.Empty(t, config)
+	})
 }
