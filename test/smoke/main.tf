@@ -29,6 +29,8 @@ module "ec_deployment" {
   region                 = "gcp-us-west2"
   deployment_template    = "gcp-compute-optimized"
   integrations_server    = true
+  apm_server_expvar      = false
+  apm_server_pprof       = false
 }
 
 resource "local_file" "chart_values" {
