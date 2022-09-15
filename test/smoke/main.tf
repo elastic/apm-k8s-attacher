@@ -88,7 +88,7 @@ resource "kubernetes_deployment_v1" "nodejs-demo" {
     template {
       metadata {
         annotations = {
-          "co.elastic.traces/agent" = "nodejs"
+          "co.elastic.apm/attach" = "nodejs"
         }
         labels = {
           "app" = "nodejs-demo"

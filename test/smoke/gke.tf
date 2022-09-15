@@ -31,7 +31,6 @@ module "gke" {
   project_id                 = var.gcp_project
   name                       = "gke-smoketest-1"
   region                     = var.gcp_region
-  zones                      = ["${var.gcp_region}-a", "${var.gcp_region}-b", "${var.gcp_region}-c"]
   network                    = google_compute_network.kube_network.name
   subnetwork                 = google_compute_subnetwork.kube_subnet.name
   ip_range_pods              = google_compute_subnetwork.kube_subnet.secondary_ip_range[0].range_name
@@ -45,7 +44,6 @@ module "gke" {
     {
       name               = "default-node-pool"
       machine_type       = "e2-medium"
-      node_locations     = "${var.gcp_region}-b,${var.gcp_region}-c"
       min_count          = 1
       max_count          = 2
       local_ssd_count    = 0

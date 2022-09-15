@@ -11,7 +11,7 @@ spec:
   template:
     metadata:
       annotations:
-        co.elastic.traces/agent: nodejs
+        co.elastic.apm/attach: nodejs
       labels:
         app: nodejs-demo
     spec:

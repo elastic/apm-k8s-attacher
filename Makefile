@@ -1,5 +1,5 @@
 REPO?=apm
-NAME?=webhook
+NAME?=apm-attacher
 TAG?=latest
 
 GO_LICENSER_VERSION?=v0.4.0
