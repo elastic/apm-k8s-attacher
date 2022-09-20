@@ -119,7 +119,19 @@ pipeline {
         }
         stage('Helm') {
           steps {
-            echo 'TBD'
+            withCredentials([string(credentialsId: 'release-helm-charts-job', variable: 'TOKEN')]) {
+              triggerRemoteJob(auth: CredentialsAuth(credentials: 'local-readonly-api-token'),
+                job: 'https://internal-ci.elastic.co/job/elastic+unified-release+main+helm-charts-publish',
+                token: TOKEN,
+                parameters: [
+                  helm_chart: "APM-Mutating-Webhook",
+                  tag_name: "${env.TAG_NAME}",
+                  repository: "prod",
+                ],
+                useCrumbCache: false,
+                useJobInfoCache: false
+              )
+            }
           }
         }
         stage('Release Notes') {
