@@ -9,7 +9,7 @@ The software contained in this repo is considered a **Technical Preview**, and i
 
 ## Documentation
 
-See [Elastic APM Attacher](https://elastic.co/guide/en/apm/guide/current/apm-mutating-admission-webhook.html) to get started.
+See [Elastic APM Attacher](https://www.elastic.co/guide/en/apm/attacher/current/index.html) to get started.
 
 ## Getting Help
 
