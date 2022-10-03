@@ -1,6 +1,7 @@
-# Elastic APM mutating admission webhook for Kubernetes
+# Elastic APM Attacher for Kubernetes
 
-This repository contains a webhook receiver and a helmchart for managing the receiver's lifecycle within kubernetes.
+The Elastic APM attacher for Kubernetes simplifies the instrumentation and configuration of your application pods.
+The attacher contains a webhook receiver and a helm chart that manages the receiver's lifecycle within kubernetes.
 
 ## Release State
 
@@ -8,8 +9,7 @@ The software contained in this repo is considered a **Technical Preview**, and i
 
 ## Documentation
 
-Learn more about how to simplify the APM getting started experience on Kubernetes via auto instrumentation 
-when using the [Elastic APM mutating admission webhook](https://elastic.co/guide/en/apm/guide/current/apm-mutating-admission-webhook.html).
+See [Elastic APM Attacher](https://elastic.co/guide/en/apm/guide/current/apm-mutating-admission-webhook.html) to get started.
 
 ## Getting Help
 
