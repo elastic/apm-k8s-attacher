@@ -4,6 +4,9 @@
 :kube-admin-docs: https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/
 :helm-docs:       https://helm.sh/docs/
 
+[[apm-attacher]]
+== APM Attacher
+
 preview::[]
 
 The APM attacher for Kubernetes simplifies the instrumentation and configuration of your application pods.
@@ -14,6 +17,7 @@ Kubernetes.
 
 Learn more below, or skip ahead to <<apm-get-started-webhook>>.
 
+[float]
 [[apm-webhook]]
 == Webhook
 
@@ -29,6 +33,7 @@ API server, it looks through the pod spec for a specific, user-supplied annotati
 is mutated according to the webhook receiver's configuration. This mutated object is then returned to the
 Kubernetes API server which uses it as the source of truth for the object.
 
+[float]
 [[apm-mutation]]
 == Mutation
 
@@ -45,6 +50,7 @@ auto-instrumentation with the copied agent binary
 TIP: To learn more about mutating webhooks,
 see the {kube-admin-docs}[Kubernetes Admission controller documentation].
 
+[float]
 [[apm-helm-chart]]
 == Helm chart
 
@@ -53,8 +59,6 @@ webhook receiver, including generating certificates for securing communication
 between the Kubernetes API server and the webhook receiver.
 
 TIP: To learn more about Helm charts, see the {helm-docs}[Helm documentation].
-
-// Break content below to a new page
 
 [[apm-get-started-webhook]]
 == Instrument and configure pods
