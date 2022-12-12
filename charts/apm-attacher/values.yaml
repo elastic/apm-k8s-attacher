@@ -29,7 +29,7 @@ webhookConfig:
       image: docker.elastic.co/observability/apm-agent-java:latest
       artifact: "/usr/agent/elastic-apm-agent.jar"
       environment:
-        JAVA_TOOL_OPTIONS: "-javaagent:/elastic/apm/agent/elastic-apm-agent.jar"
+        JAVA_TOOL_OPTIONS: "-javaagent:/elastic/apm/agent/elastic-apm-agent.jar -Delastic.apm.activation_method=K8S"
     nodejs:
       image: docker.elastic.co/observability/apm-agent-nodejs:latest
       artifact: "/opt/nodejs/node_modules/elastic-apm-node"
