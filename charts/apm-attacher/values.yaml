@@ -45,3 +45,4 @@ webhookConfig:
         CORECLR_PROFILER_PATH: "/usr/agent/apm-dotnet-agent/libelastic_apm_profiler.so" 
         ELASTIC_APM_PROFILER_HOME: "/usr/agent/apm-dotnet-agent"
         ELASTIC_APM_PROFILER_INTEGRATIONS: "/usr/agent/apm-dotnet-agent/integrations.yml"
+        ELASTIC_APM_ACTIVATION_METHOD: "K8S"
