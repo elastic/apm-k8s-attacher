@@ -35,6 +35,7 @@ webhookConfig:
       artifact: "/opt/nodejs/node_modules/elastic-apm-node"
       environment:
         NODE_OPTIONS: "-r /elastic/apm/agent/elastic-apm-node/start"
+        ELASTIC_APM_ACTIVATION_METHOD: "K8S"
     dotnet:
       image: docker.elastic.co/observability/apm-agent-dotnet:latest
       artifact: "/usr/agent/apm-dotnet-agent"
