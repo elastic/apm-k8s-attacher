@@ -27,6 +27,7 @@ Supported agents include:
 // links will be added later
 * Java agent
 * Node.js agent
+* .NET agent
 
 The webhook receiver is invoked on pod creation. After receiving the object definition from the Kubernetes
 API server, it looks through the pod spec for a specific, user-supplied annotation. If found, the pod spec
