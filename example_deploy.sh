@@ -1,7 +1,8 @@
 #!/bin/bash
 set -exuo errexit
 
-export APP="example-app"
+export APP="petclinic"
+export NAMESPACE="${2:-default}"
 
 revision=$(date +%s)
 
@@ -10,22 +11,23 @@ kubectl apply -f - <<EOF
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: petclinic-without-attach
+  name: ${APP}-without-attach
+  namespace: ${NAMESPACE}
   labels:
-    app: petclinic-without-attach
-    service: petclinic-without-attach
+    app: ${APP}-without-attach
+    service: ${APP}-without-attach
   annotations:
     deployment.kubernetes.io/revision: "$revision"
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: petclinic-without-attach
+      app: ${APP}-without-attach
   template:
     metadata:
       labels:
-        app: petclinic-without-attach
-        service: petclinic-without-attach
+        app: ${APP}-without-attach
+        service: ${APP}-without-attach
       annotations:
         deployment.kubernetes.io/revision: "$revision"
     spec:
@@ -37,38 +39,39 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: petclinic
+  name: ${APP}
+  namespace: ${NAMESPACE}
   labels:
-    app: petclinic
-    service: petclinic
+    app: ${APP}
+    service: ${APP}
   annotations:
     deployment.kubernetes.io/revision: "$revision"
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: petclinic
+      app: ${APP}
   template:
     metadata:
       labels:
-        app: petclinic
-        service: petclinic
+        app: {APP}
+        service: ${APP}
       annotations:
         co.elastic.apm/attach: java
         deployment.kubernetes.io/revision: "$revision"
     spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - name: petclinic
+      - name: ${APP}
         image: eyalkoren/pet-clinic:without-agent
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: petclinic
-  namespace: default
+  name: ${APP}
+  namespace: ${NAMESPACE}
   labels:
-    app: petclinic
+    app: ${APP}
 spec:
   type: ClusterIP
   ports:
@@ -76,5 +79,5 @@ spec:
     port: 8080
     targetPort: 8080
   selector:
-    service: petclinic
+    service: ${APP}
 EOF
