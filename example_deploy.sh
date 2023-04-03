@@ -33,7 +33,7 @@ spec:
     spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - name: petclinic
+      - name: ${APP}
         image: eyalkoren/pet-clinic:without-agent
 ---
 apiVersion: apps/v1
