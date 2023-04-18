@@ -1,0 +1,88 @@
+---
+
+name: ci
+
+on:
+  push:
+    branches:
+      - main
+      - feature/github-actions
+  pull_request:
+    branches:
+      - main
+
+# Limit the access of the generated GITHUB_TOKEN
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version-file: go.mod
+          cache: true
+          cache-dependency-path: |
+            go.sum
+      - name: lint
+        run: |
+          go mod tidy && git diff --exit-code
+          gofmt -l . | read && echo "Code differs from gofmt's style. Run 'gofmt -w .'" 1>&2 && exit 1 || true
+      - name: Go vet
+        run: go vet
+  notice:
+    name: NOTICE.txt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version-file: go.mod
+          cache: true
+          cache-dependency-path: |
+            go.sum
+      - name: notice
+        run: |
+          bash ./scripts/notice.sh
+          git diff --exit-code
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version-file: go.mod
+          cache: true
+          cache-dependency-path: |
+            go.sum
+      - name: Go build
+        run: go build
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version-file: go.mod
+          cache: true
+          cache-dependency-path: |
+            go.sum
+      - name: Install gotestsum
+        run: go install gotest.tools/gotestsum@latest
+      - run: gotestsum --format testname --junitfile junit-report.xml -- -v ./...
+      - name: Store test results
+        if: success() || failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: |
+            **/junit-*.xml
