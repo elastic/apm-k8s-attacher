@@ -85,3 +85,10 @@ jobs:
           name: test-results
           path: |
             **/junit-*.xml
+  package:
+    name: Package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Package & Push
+        run: make .webhook
