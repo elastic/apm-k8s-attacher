@@ -1,6 +1,6 @@
 ---
 
-name: ci-extends
+name: ci-publish
 
 on:
   push:
@@ -16,8 +16,8 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
-  package:
-    name: Package
+  publish:
+    name: Publish
     runs-on: ubuntu-latest
     env:
       DOCKER_REGISTRY: docker.elastic.co
@@ -32,6 +32,6 @@ jobs:
           url: ${{ secrets.VAULT_ADDR }}
           roleId: ${{ secrets.VAULT_ROLE_ID }}
           secretId: ${{ secrets.VAULT_SECRET_ID }}
-      - name: Package & Push
+      - name: Package & Publish
         run: |
           ./.ci/docker-package-push.sh ${DOCKER_REGISTRY}/observability ${DOCKER_IMAGE_NAME} ${{ github.sha }} true
