@@ -5,7 +5,7 @@ on:
   workflow_run:
     workflows:
       - ci
-      - ci-publish
+      - publish
     types: [completed]
 
 jobs:
