@@ -1,0 +1,11 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: mock-apm-server-service
+spec:
+  selector:
+    app: mock-apm-server
+  ports:
+  - protocol: TCP
+    port: 8027
+    targetPort: http
