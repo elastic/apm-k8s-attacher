@@ -2,6 +2,22 @@ name: Agents Integration Testing
 
 on: 
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - '**.asciidoc'
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
+      - ready_for_review
+    paths-ignore:
+      - '**.md'
+      - '**.asciidoc'
   
 env:
   AGENT_TESTS: java nodejs
