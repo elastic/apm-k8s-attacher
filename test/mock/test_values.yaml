@@ -1,0 +1,16 @@
+apm:
+  secret_token: YOUR_SECRET_TOKEN
+  namespaces: 
+    - default
+webhookConfig:
+  agents:
+    java: 
+      environment:
+        ELASTIC_APM_SERVER_URL: "http://mock-apm-server-service:8027"
+        ELASTIC_APM_ENVIRONMENT: "test"
+        ELASTIC_APM_LOG_LEVEL: "DEBUG"
+    nodejs: 
+      environment:
+        ELASTIC_APM_SERVER_URL: "http://mock-apm-server-service:8027"
+        ELASTIC_APM_ENVIRONMENT: "test"
+        ELASTIC_APM_LOG_LEVEL: "trace"
