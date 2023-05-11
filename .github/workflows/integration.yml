@@ -1,0 +1,75 @@
+name: Agents Integration Testing
+
+on: 
+  workflow_dispatch:
+  
+env:
+  AGENT_TESTS: java nodejs
+  
+jobs:
+  integration-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Create kind cluster
+        uses: helm/kind-action@v1.4.0
+
+      - name: Create Local Registry
+        run: 
+           sh test/mock/kind-with-registry.sh
+
+      - name: Create Mock APM server image
+        run: 
+           cd test/mock;
+           docker build -t mock-apm-server .;
+           docker tag mock-apm-server localhost:5001/registry/mock-apm-server;
+           docker push localhost:5001/registry/mock-apm-server;
+
+      - name: Start Mock Apm Server
+        run: |
+          kubectl create -f test/mock/mock-apm-server-deployment.yaml
+          kubectl create -f test/mock/mock-apm-server-service.yaml
+          kubectl get pods -A
+          sh test/mock/wait_for_container_start.sh mock-apm-server
+          kubectl get pods -A
+
+      - name: Create Test Images
+        run: |
+           export START_WD=`pwd`
+           for t in ${AGENT_TESTS[@]}
+           do
+             echo "Creating image for $t"
+             cd test/$t
+             docker build -t $t-test-app .
+             docker tag $t-test-app localhost:5001/registry/$t-test-app
+             docker push localhost:5001/registry/$t-test-app
+             cd $START_WD
+           done
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.11.2
+
+      - name: Install webhook
+        run: 
+          cd charts;
+          helm install webhook-chart apm-attacher/ --namespace=elastic-apm --create-namespace --values ../test/mock/test_values.yaml;
+          sleep 5;
+          export CHART_SERVICE=`kubectl get pods -A | grep 'webhook-chart' | awk -F ' ' '{print $2}'` ;
+          sh ../test/mock/wait_for_container_start.sh $CHART_SERVICE elastic-apm;
+
+      - name: Start Test Images
+        run: |
+          for t in ${AGENT_TESTS[@]}
+          do
+            echo "Starting pod for $t"
+            kubectl create -f test/$t/test-app.yaml
+            sh test/mock/wait_for_container_start.sh $t-test-app
+            kubectl logs $t-test-app
+            sh test/$t/agent_has_started.sh
+          done

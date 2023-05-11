@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mock-apm-server-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+     app: mock-apm-server
+  template:
+    metadata:
+      labels:
+        app: mock-apm-server
+    spec:
+      containers:
+      - name: mock-apm-server
+        image: localhost:5001/registry/mock-apm-server
+        ports:
+        - name: http
+          containerPort: 8027
