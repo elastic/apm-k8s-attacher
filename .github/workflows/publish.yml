@@ -1,0 +1,37 @@
+---
+
+name: publish
+
+on:
+  push:
+    branches:
+      - main
+
+# Limit the access of the generated GITHUB_TOKEN
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_REGISTRY: docker.elastic.co
+      DOCKER_SECRET: secret/observability-team/ci/docker-registry/prod
+      DOCKER_IMAGE_NAME: apm-attacher
+    steps:
+      - uses: actions/checkout@v3
+      - uses: elastic/apm-pipeline-library/.github/actions/docker-login@current
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          secret: ${{ env.DOCKER_SECRET }}
+          url: ${{ secrets.VAULT_ADDR }}
+          roleId: ${{ secrets.VAULT_ROLE_ID }}
+          secretId: ${{ secrets.VAULT_SECRET_ID }}
+      - name: Package & Publish
+        run: |
+          ./.ci/docker-package-push.sh ${DOCKER_REGISTRY}/observability ${DOCKER_IMAGE_NAME} ${{ github.sha }} true

@@ -1,5 +1,0 @@
----
-- job:
-    name: "apm-mutating-webhook"
-    description: "apm-mutating-webhook"
-    project-type: folder

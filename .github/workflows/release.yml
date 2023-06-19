@@ -1,0 +1,83 @@
+name: release
+
+on:
+  push:
+    tags:
+      - v*.*.*
+
+permissions:
+  contents: read
+
+jobs:
+  release-docker:
+    name: Release Docker Image
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_REGISTRY: docker.elastic.co
+      DOCKER_SECRET: secret/observability-team/ci/docker-registry/prod
+      DOCKER_IMAGE_NAME: apm-attacher
+    steps:
+      - uses: actions/checkout@v3
+      - uses: elastic/apm-pipeline-library/.github/actions/docker-login@current
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          secret: ${{ env.DOCKER_SECRET }}
+          url: ${{ secrets.VAULT_ADDR }}
+          roleId: ${{ secrets.VAULT_ROLE_ID }}
+          secretId: ${{ secrets.VAULT_SECRET_ID }}
+      - name: Package & Publish
+        run: |
+          ./.ci/docker-package-push.sh ${DOCKER_REGISTRY}/observability ${DOCKER_IMAGE_NAME} ${{ github.ref_name }}
+
+  release-helm-charts:
+    name: Release Helm Charts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: elastic/apm-pipeline-library/.github/actions/buildkite@current
+        with:
+          vaultUrl: ${{ secrets.VAULT_ADDR }}
+          vaultRoleId: ${{ secrets.VAULT_ROLE_ID }}
+          vaultSecretId: ${{ secrets.VAULT_SECRET_ID }}
+          pipeline: oblt-publish-helm-charts
+          waitFor: true
+          printBuildLogs: true
+          buildEnvVars: |
+            CHARTS_URL=https://github.com/${{ github.repository }}/archive/${{ github.ref_name }}.tar.gz
+            HELM_REPO_ENV=prod
+
+  release-notes:
+    name: Release Notes
+    runs-on: ubuntu-latest
+    permissions:
+      # Needed to create the release notes
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: make release-notes
+        env:
+          BRANCH_NAME: ${{ github.ref_name }}
+          GH_TOKEN: ${{ github.token }}
+        run: make -C .ci release-notes
+
+  status:
+    if: always()
+    needs:
+      - release-docker
+      - release-helm-charts
+      - release-notes
+    runs-on: ubuntu-latest
+    steps:
+      - id: check
+        uses: elastic/apm-pipeline-library/.github/actions/check-dependent-jobs@current
+        with:
+          needs: ${{ toJSON(needs) }}
+      - uses: elastic/apm-pipeline-library/.github/actions/notify-build-status@current
+        with:
+          status: ${{ steps.check.outputs.status }}
+          vaultUrl: ${{ secrets.VAULT_ADDR }}
+          vaultRoleId: ${{ secrets.VAULT_ROLE_ID }}
+          vaultSecretId: ${{ secrets.VAULT_SECRET_ID }}
+          slackChannel: "#apm-server"
+          message: |
+            :ghost: [${{ github.repository }}] Release *${{ github.ref_name }}* has been triggered in GitHub Actions.
+            Build: (<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|here>)
