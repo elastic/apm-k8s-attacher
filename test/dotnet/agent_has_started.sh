@@ -1,7 +1,7 @@
 #!/bin/sh
 #initial 10 second delay for restricted CPUs making agent slow starting 
 sleep 10
-START_MESSAGE=`kubectl logs java-test-app | grep 'Application Started. Press Ctrl+C'`
+START_MESSAGE=`kubectl logs dotnet-test-app | grep 'Application Started. Press Ctrl+C'`
 if [ "x$START_MESSAGE" = "x" ]
 then
   exit 1
