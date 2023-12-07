@@ -91,7 +91,7 @@ helm repo add elastic https://helm.elastic.co
 
 The APM Attacher's webhook can be installed from a Helm chart.
 You can provide a custom webhook configuration using a Helm values file.
-Elastic provides a https://github.com/elastic/apm-mutating-webhook/blob/main/custom.yaml[`custom.yaml`] file as a starting point.
+Elastic provides a https://github.com/elastic/apm-k8s-attacher/blob/main/custom.yaml[`custom.yaml`] file as a starting point.
 
 This sample `custom.yaml` file instruments a pod with the **Elastic APM Java agent**:
 
@@ -115,7 +115,7 @@ webhookConfig:
 <2> If you're using a secret token or API key to secure your deployment, you must list
 all of the namespaces where you want to auto-instrument pods. The secret token or API key
 will be stored as Kubernetes Secrets in each namespace.
-<3> Fields written here are merged with pre-existing fields in https://github.com/elastic/apm-mutating-webhook/blob/main/charts/apm-attacher/values.yaml[`values.yaml`]
+<3> Fields written here are merged with pre-existing fields in https://github.com/elastic/apm-k8s-attacher/blob/main/charts/apm-attacher/values.yaml[`values.yaml`]
 <4> Elastic APM agent environment variables—for example, the APM Server URL, which specifies the URL and port of your APM integration or server.
 
 This sample `custom.yaml` file instruments a pod with the **Elastic APM Node.js agent**:
@@ -140,13 +140,13 @@ webhookConfig:
 <2> If you're using a secret token or API key to secure your deployment, you must list
 all of the namespaces where you want to auto-instrument pods. The secret token or API key
 will be stored as Kubernetes Secrets in each namespace.
-<3> Fields written here are merged with pre-existing fields in https://github.com/elastic/apm-mutating-webhook/blob/main/charts/apm-attacher/values.yaml[`values.yaml`]
+<3> Fields written here are merged with pre-existing fields in https://github.com/elastic/apm-k8s-attacher/blob/main/charts/apm-attacher/values.yaml[`values.yaml`]
 <4> Elastic APM agent environment variables—for example, the APM Server URL, which specifies the URL and port of your APM integration or server.
 
 TIP: The examples above assume that you want to use the latest version of the Elastic APM agent.
 Advanced users may want to pin a version of the agent or provide a custom build.
 To do this, set your own `image`, `artifact`, and `environment.*OPTIONS` fields.
-Copy the formatting from https://github.com/elastic/apm-mutating-webhook/blob/main/charts/apm-attacher/values.yaml[`values.yaml`].
+Copy the formatting from https://github.com/elastic/apm-k8s-attacher/blob/main/charts/apm-attacher/values.yaml[`values.yaml`].
 
 NOTE: Expiring and rotating API keys will need to update the `custom.yaml`, upgrade the helm install with the new `custom.yaml`, and cycle running pods in a similar way to other deployment definition changes.
 
@@ -245,11 +245,11 @@ agents:
 ----
 <1> The example here shows a `java-prod` configuration which specifies a specific version of the agent instead of the `latest`
 
-IMPORTANT: The only `webhookConfig.agents` values defined in https://github.com/elastic/apm-mutating-webhook/blob/main/charts/apm-attacher/values.yaml[`values.yaml`] are `java` and `nodejs`. When using other values,
+IMPORTANT: The only `webhookConfig.agents` values defined in https://github.com/elastic/apm-k8s-attacher/blob/main/charts/apm-attacher/values.yaml[`values.yaml`] are `java` and `nodejs`. When using other values,
 you must explicitly specify `image`, `artifact`, and `*OPTIONS` values.
 
 IMPORTANT: The environment variables defined in the webhook and here take precedence - overwrite - the values defined in the Kubernetes deployments. For example if your image uses JAVA_TOOL_OPTIONS, the value
-your image sets will be ignored in favour of the value set here or in the https://github.com/elastic/apm-mutating-webhook/blob/main/charts/apm-attacher/values.yaml[`values.yaml`].
+your image sets will be ignored in favour of the value set here or in the https://github.com/elastic/apm-k8s-attacher/blob/main/charts/apm-attacher/values.yaml[`values.yaml`].
 
 
 [[apm-webhook-watch-data]]
