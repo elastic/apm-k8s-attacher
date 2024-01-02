@@ -89,7 +89,7 @@ helm repo add elastic https://helm.elastic.co
 
 The APM Attacher's webhook can be installed from a Helm chart.
 You can provide a custom webhook configuration using a Helm values file.
-Elastic provides a https://github.com/elastic/apm-mutating-webhook/blob/main/custom.yaml[`custom.yaml`] file as a starting point.
+Elastic provides a https://github.com/elastic/apm-k8s-attacher/blob/main/custom.yaml[`custom.yaml`] file as a starting point.
 
 This sample `custom.yaml` file instruments a pod with the **Elastic APM Java agent**:
 
@@ -113,7 +113,7 @@ webhookConfig:
 <2> If you're using a secret token or API key to secure your deployment, you must list
 all of the namespaces where you want to auto-instrument pods. The secret token or API key
 will be stored as Kubernetes Secrets in each namespace.
-<3> Fields written here are merged with pre-existing fields in https://github.com/elastic/apm-mutating-webhook/blob/main/apm-attacher/values.yaml[`values.yaml`]
+<3> Fields written here are merged with pre-existing fields in https://github.com/elastic/apm-k8s-attacher/blob/main/charts/apm-attacher/values.yaml[`values.yaml`]
 <4> Elastic APM agent environment variables—for example, the APM Server URL, which specifies the URL and port of your APM integration or server.
 
 This sample `custom.yaml` file instruments a pod with the **Elastic APM Node.js agent**:
@@ -138,14 +138,15 @@ webhookConfig:
 <2> If you're using a secret token or API key to secure your deployment, you must list
 all of the namespaces where you want to auto-instrument pods. The secret token or API key
 will be stored as Kubernetes Secrets in each namespace.
-<3> Fields written here are merged with pre-existing fields in https://github.com/elastic/apm-mutating-webhook/blob/main/apm-attacher/values.yaml[`values.yaml`]
+<3> Fields written here are merged with pre-existing fields in https://github.com/elastic/apm-k8s-attacher/blob/main/charts/apm-attacher/values.yaml[`values.yaml`]
 <4> Elastic APM agent environment variables—for example, the APM Server URL, which specifies the URL and port of your APM integration or server.
 
 TIP: The examples above assume that you want to use the latest version of the Elastic APM agent.
 Advanced users may want to pin a version of the agent or provide a custom build.
 To do this, set your own `image`, `artifact`, and `environment.*OPTIONS` fields.
-Copy the formatting from https://github.com/elastic/apm-mutating-webhook/blob/main/apm-attacher/values.yaml[`values.yaml`].
+Copy the formatting from https://github.com/elastic/apm-k8s-attacher/blob/main/charts/apm-attacher/values.yaml[`values.yaml`].
 
+NOTE: Expiring and rotating API keys will need to update the `custom.yaml`, upgrade the helm install with the new `custom.yaml`, and cycle running pods in a similar way to other deployment definition changes.
 
 [[apm-webhook-install-helm]]
 === Install the webhook with Helm
@@ -155,14 +156,16 @@ Pass in your `custom.yaml` configuration file created in the previous step with 
 
 [source,bash]
 ----
-helm upgrade elastic/apm-attacher \
-  --install [name] \ <1>
+helm install [name] \ <1>
+  elastic/apm-attacher \
   --namespace=elastic-apm \ <2>
   --create-namespace \
   --values custom.yaml
 ----
 <1> The name for the installed helm chart in Kubernetes.
 <2> The APM Attacher needs to be installed in a dedicated namespace. Any pods created in the same namespace as the attacher will be ignored.
+
+NOTE: `helm upgrade ...` can be used to upgrade an existing installation, eg if you have a new version of the `custom.yaml` configuration file.
 
 
 [[apm-webhook-add-pod-annotation]]
@@ -202,7 +205,8 @@ spec:
     spec:
       #...
 ----
-<1> The APM attacher configuration `webhookConfig.agents.java` matches `co.elastic.apm/attach: java`
+<1> The APM attacher configuration `webhookConfig.agents.java` matches `co.elastic.apm/attach: java`. If you define further configurations,
+for example the `java-dev` configuration below, and you wanted to use that definition for this deployment, this entry would be `java-dev` instead of `java`
 
 The `spec.template.metadata.annotations` value allows you to set custom environment variables and images per deployment.
 For example, your Helm values file might configure a number of deployments: `java-dev` might have a different APM environment from `java-prod`, and `backend2` use a different APM agent than other deployments.
@@ -220,7 +224,7 @@ agents:
       ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED: "true"
       JAVA_TOOL_OPTIONS: "-javaagent:/elastic/apm/agent/elastic-apm-agent.jar"
   java-prod:
-    image: docker.elastic.co/observability/apm-agent-java:latest
+    image: docker.elastic.co/observability/apm-agent-java:1.44.0 <1>
     artifact: "/usr/agent/elastic-apm-agent.jar"
     environment:
       ELASTIC_APM_SERVER_URLS: "http://192.168.1.11:8200"
@@ -237,9 +241,13 @@ agents:
       ELASTIC_APM_SERVICE_NAME: "petclinic"
       ELASTIC_APM_LOG_LEVEL: "info"
 ----
+<1> The example here shows a `java-prod` configuration which specifies a specific version of the agent instead of the `latest`
 
-IMPORTANT: The only `webhookConfig.agents` values defined in https://github.com/elastic/apm-mutating-webhook/blob/main/apm-attacher/values.yaml[`values.yaml`] are `java` and `nodejs`. When using other values,
+IMPORTANT: The only `webhookConfig.agents` values defined in https://github.com/elastic/apm-k8s-attacher/blob/main/charts/apm-attacher/values.yaml[`values.yaml`] are `java` and `nodejs`. When using other values,
 you must explicitly specify `image`, `artifact`, and `*OPTIONS` values.
+
+IMPORTANT: The environment variables defined in the webhook and here take precedence - overwrite - the values defined in the Kubernetes deployments. For example if your image uses JAVA_TOOL_OPTIONS, the value
+your image sets will be ignored in favour of the value set here or in the https://github.com/elastic/apm-k8s-attacher/blob/main/charts/apm-attacher/values.yaml[`values.yaml`].
 
 
 [[apm-webhook-watch-data]]
