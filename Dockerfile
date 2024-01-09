@@ -7,7 +7,7 @@ WORKDIR /app
 RUN CGO_ENABLED=0 go build -o webhook -a -installsuffix cgo .
 
 FROM alpine
-WORKDIR /usr/share/apm-mutating-webhook
+WORKDIR /usr/share/apm-k8s-attacher
 COPY --from=build /app/webhook .
-ADD LICENSE.txt NOTICE.txt /usr/share/apm-mutating-webhook/
+ADD LICENSE.txt NOTICE.txt /usr/share/apm-k8s-attacher/
 ENTRYPOINT ["./webhook"]

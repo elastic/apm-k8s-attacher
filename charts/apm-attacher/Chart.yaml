@@ -4,4 +4,4 @@ type: application
 version: "0.3.0"
 description: A Helm chart installing the Elastic APM mutating webhook.
 sources:
-  - https://github.com/elastic/apm-mutating-webhook
+  - https://github.com/elastic/apm-k8s-attacher
