@@ -20,7 +20,7 @@ on:
       - '**.asciidoc'
   
 env:
-  AGENT_TESTS: java nodejs
+  AGENT_TESTS: dotnet java nodejs
   
 jobs:
   integration-test:
