@@ -1,7 +1,7 @@
 agents:
   java:
     environment:
-      ELASTIC_APM_SERVER_URLS: "http://34.78.173.219:8200"
+      ELASTIC_APM_SERVER_URL: "http://34.78.173.219:8200"
       ELASTIC_APM_SERVICE_NAME: "petclinic"
       ELASTIC_APM_ENVIRONMENT: "test"
       ELASTIC_APM_LOG_LEVEL: "debug"
