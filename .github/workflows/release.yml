@@ -77,7 +77,7 @@ jobs:
           vaultUrl: ${{ secrets.VAULT_ADDR }}
           vaultRoleId: ${{ secrets.VAULT_ROLE_ID }}
           vaultSecretId: ${{ secrets.VAULT_SECRET_ID }}
-          slackChannel: "#apm-server"
+          slackChannel: "#apm-agent-java"
           message: |
             :ghost: [${{ github.repository }}] Release *${{ github.ref_name }}* has been triggered in GitHub Actions.
             Build: (<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|here>)
