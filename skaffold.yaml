@@ -5,7 +5,7 @@ metadata:
 build:
   local: {}
   artifacts:
-    - image: elastic/apm-mutating-webhook
+    - image: elastic/apm-k8s-attacher
       docker:
         dockerfile: "Dockerfile"
 deploy:
@@ -14,7 +14,7 @@ deploy:
       - name: apm-attacher
         chartPath: apm-attacher
         artifactOverrides:
-          image: elastic/apm-mutating-webhook
+          image: elastic/apm-k8s-attacher
         imageStrategy:
           helm: {}
         namespace: elastic-apm

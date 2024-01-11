@@ -6,7 +6,7 @@ The APM attacher for Kubernetes simplifies the instrumentation and configuration
 For more information about the APM Agent Auto attacher, see:
 
 - [Documentation](https://elastic.co/guide/en/apm/guide/current/apm-mutating-admission-webhook.html)
-- [GitHub repo](https://github.com/elastic/apm-mutating-webhook)
+- [GitHub repo](https://github.com/elastic/apm-k8s-attacher)
 
 ## Requirements
 

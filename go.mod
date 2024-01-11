@@ -1,4 +1,4 @@
-module github.com/elastic/apm-mutating-webhook
+module github.com/elastic/apm-k8s-attacher
 
 go 1.20
 
