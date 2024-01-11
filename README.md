@@ -13,7 +13,7 @@ See [Elastic APM Attacher](https://www.elastic.co/guide/en/apm/attacher/current/
 
 ## Getting Help
 
-If you find a bug, please [report an issue](https://github.com/elastic/apm-mutating-webhook/issues).
+If you find a bug, please [report an issue](https://github.com/elastic/apm-k8s-attacher/issues).
 For any other assistance, please open or add to a topic on the [APM discuss forum](https://discuss.elastic.co/c/apm).
 
 ## Contributing
