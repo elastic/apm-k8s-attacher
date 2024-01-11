@@ -143,6 +143,11 @@ func generateEnvironmentVariables(config agentConfig) ([]corev1.EnvVar, error) {
 			Name: "ELASTIC_APM_SERVER_URL", Value: "http://$(HOST_IP):8200",
 		})
 	}
+	if _, ok := config.Environment["ELASTIC_APM_ACTIVATION_METHOD"]; !ok {
+		vars = append(vars, corev1.EnvVar{
+			Name: "ELASTIC_APM_ACTIVATION_METHOD", Value: "K8S_ATTACH",
+		})
+	}
 	for k, v := range kubernetesEnvironmentVariables {
 		vars = append(vars, corev1.EnvVar{
 			Name: k,
