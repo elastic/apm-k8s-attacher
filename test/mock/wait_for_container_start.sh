@@ -1,4 +1,8 @@
 #!/bin/sh
+
+#XXX
+set -x
+
 MAX_WAIT_SECONDS=60
 POD_NAME=$1
 echo "Waiting up to $MAX_WAIT_SECONDS seconds for pod $1 to start"
