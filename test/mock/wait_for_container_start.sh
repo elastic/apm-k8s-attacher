@@ -20,5 +20,10 @@ do
 done
 
 echo "error: pod matching '$POD_NAME' failed to start within $MAX_WAIT_SECONDS seconds"
+echo "-- pod info:"
 kubectl get pod -A
+echo "-- pod logs:"
+kubectl logs "$POD_NAME"
+echo "-- docker images:"
+docker images
 exit 1
