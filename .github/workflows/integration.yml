@@ -76,7 +76,7 @@ jobs:
           helm install webhook-chart ./charts/apm-attacher/ --namespace=elastic-apm --create-namespace --values test/mock/test_values.yaml
           sleep 5
           export POD_NAME=`kubectl get pods -A | grep 'webhook-chart' | awk -F ' ' '{print $2}'`
-          sh ../test/mock/wait_for_container_start.sh $POD_NAME
+          sh test/mock/wait_for_container_start.sh $POD_NAME
 
       - name: Start Test Images
         run: |
