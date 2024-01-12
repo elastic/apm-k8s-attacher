@@ -5,7 +5,8 @@ set -x
 
 MAX_WAIT_SECONDS=60
 POD_NAME=$1
-echo "Waiting up to $MAX_WAIT_SECONDS seconds for pod $1 to start"
+
+echo "Waiting up to $MAX_WAIT_SECONDS seconds for pod $POD_NAME to start"
 count=0
 while [ $count -lt $MAX_WAIT_SECONDS ]
 do
