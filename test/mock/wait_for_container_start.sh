@@ -10,6 +10,7 @@ count=0
 while [ $count -lt $MAX_WAIT_SECONDS ]
 do
   count=`expr $count + 1`
+  kubectl get pod -A #XXX
   STARTED=`kubectl get pod -A | grep $POD_NAME | grep 'Running'`
   if [ "$STARTED" != "" ]
   then
@@ -17,4 +18,7 @@ do
   fi
   sleep 1
 done
+
+echo "error: pod matching '$POD_NAME' failed to start within $MAX_WAIT_SECONDS seconds"
+kubectl get pod -A
 exit 1
