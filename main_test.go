@@ -34,7 +34,7 @@ func TestYAMLParse(t *testing.T) {
 	java := cfg.Agents["java"]
 	assert.Equal(t, java.Image, "docker.com/elastic/agent-java:1.2.3")
 	assert.Len(t, java.Environment, 5)
-	assert.Contains(t, java.Environment, "ELASTIC_APM_SERVER_URLS")
+	assert.Contains(t, java.Environment, "ELASTIC_APM_SERVER_URL")
 	assert.Contains(t, java.Environment, "ELASTIC_APM_SERVICE_NAME")
 	assert.Contains(t, java.Environment, "ELASTIC_APM_ENVIRONMENT")
 	assert.Contains(t, java.Environment, "ELASTIC_APM_LOG_LEVEL")
