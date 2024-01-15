@@ -6,7 +6,7 @@
     - Update the `image.tag:` at "./charts/apm-attacher/values.yaml", e.g. "v1.2.3".
       Note that this file includes a "v" prefix in the version.
     Get the PR approved and merged.
-2. Working in a clone of the actual repo (not a fork), tag the repo:
+2. Working in a clone of the actual repo (not a fork), lightweight tag the repo:
     ```
     git tag vN.M.P
     git push origin vN.M.P
