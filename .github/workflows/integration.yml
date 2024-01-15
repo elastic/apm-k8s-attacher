@@ -68,13 +68,15 @@ jobs:
         with:
           version: v3.11.2
 
-      - name: Install webhook
-        run:
-          cd charts;
-          helm install webhook-chart apm-attacher/ --namespace=elastic-apm --create-namespace --values ../test/mock/test_values.yaml;
-          sleep 5;
-          export CHART_SERVICE=`kubectl get pods -A | grep 'webhook-chart' | awk -F ' ' '{print $2}'` ;
-          sh ../test/mock/wait_for_container_start.sh $CHART_SERVICE elastic-apm;
+      - name: Build and install webhook
+        run: |
+          make .webhook  # builds "apm/apm-attacher:latest" Docker image
+          docker tag apm/apm-attacher:latest localhost:5001/apm-attacher:latest
+          docker push localhost:5001/apm-attacher:latest
+          helm install webhook-chart ./charts/apm-attacher/ --namespace=elastic-apm --create-namespace --values test/mock/test_values.yaml
+          sleep 5
+          export POD_NAME=`kubectl get pods -A | grep 'webhook-chart' | awk -F ' ' '{print $2}'`
+          sh test/mock/wait_for_container_start.sh $POD_NAME
 
       - name: Start Test Images
         run: |

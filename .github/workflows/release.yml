@@ -15,9 +15,9 @@ jobs:
     env:
       DOCKER_REGISTRY: docker.elastic.co
       DOCKER_SECRET: secret/observability-team/ci/docker-registry/prod
-      DOCKER_IMAGE_NAME: apm-attacher
+      DOCKER_IMAGE_NAME: observability/apm-attacher
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: elastic/apm-pipeline-library/.github/actions/docker-login@current
         with:
           registry: ${{ env.DOCKER_REGISTRY }}
@@ -25,9 +25,12 @@ jobs:
           url: ${{ secrets.VAULT_ADDR }}
           roleId: ${{ secrets.VAULT_ROLE_ID }}
           secretId: ${{ secrets.VAULT_SECRET_ID }}
-      - name: Package & Publish
+      - name: Docker build, tag, and push
         run: |
-          ./.ci/docker-package-push.sh ${DOCKER_REGISTRY}/observability ${DOCKER_IMAGE_NAME} ${{ github.ref_name }}
+          make .webhook REPO=${DOCKER_REGISTRY} NAME=${DOCKER_IMAGE_NAME} TAG=${{ github.ref_name }}
+          docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${{ github.ref_name }}
+          docker tag ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${{ github.ref_name }} ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:latest
+          docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:latest
 
   release-helm-charts:
     name: Release Helm Charts
@@ -52,12 +55,11 @@ jobs:
       # Needed to create the release notes
       contents: write
     steps:
-      - uses: actions/checkout@v3
-      - name: make release-notes
+      - uses: actions/checkout@v4
+      - run: make -C .ci release-notes
         env:
           BRANCH_NAME: ${{ github.ref_name }}
           GH_TOKEN: ${{ github.token }}
-        run: make -C .ci release-notes
 
   status:
     if: always()
