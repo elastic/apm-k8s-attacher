@@ -9,7 +9,7 @@ The software contained in this repo is considered a **Technical Preview**, and i
 
 ## Documentation
 
-See [Elastic APM Attacher](https://www.elastic.co/guide/en/apm/attacher/current/index.html) to get started.
+See [Elastic APM Attacher](https://www.elastic.co/guide/en/apm/attacher/current/apm-attacher.html) to get started.
 
 ## Getting Help
 
@@ -19,10 +19,6 @@ For any other assistance, please open or add to a topic on the [APM discuss foru
 ## Contributing
 
 See [contributing](CONTRIBUTING.md) for details about reporting bugs, requesting features, or code contributions.
-
-## Release Procedure
-
-TBD
 
 ## License
 
