@@ -62,16 +62,6 @@ func TestGetConfig(t *testing.T) {
 		"dotnet": {Image: "dotnet-image"},
 	}
 	for _, agentName := range []string{"nodejs", "java", "dotnet"} {
-		t.Run(fmt.Sprint("legacy annotation", agentName), func(t *testing.T) {
-			config, err := getConfig(configs, map[string]string{
-				legacyAPMAnnotation: agentName,
-			})
-			assert.NoError(t, err)
-			assert.Equal(t, agentConfig{
-				Image: fmt.Sprint(agentName, "-image"),
-			}, config)
-		})
-
 		t.Run("supported annotation", func(t *testing.T) {
 			config, err := getConfig(configs, map[string]string{
 				apmAnnotation: agentName,

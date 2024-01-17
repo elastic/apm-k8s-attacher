@@ -180,10 +180,7 @@ func (s *server) mutate(admReview *admissionv1.AdmissionReview) error {
 	return nil
 }
 
-const (
-	apmAnnotation       = "co.elastic.apm/attach"
-	legacyAPMAnnotation = "co.elastic.traces/agent"
-)
+const apmAnnotation = "co.elastic.apm/attach"
 
 func getConfig(configs map[string]agentConfig, annotations map[string]string) (agentConfig, error) {
 	ac := agentConfig{}
@@ -193,9 +190,7 @@ func getConfig(configs map[string]agentConfig, annotations map[string]string) (a
 	// TODO: Do we want to support multiple comma-separated agents?
 	agent, ok := annotations[apmAnnotation]
 	if !ok {
-		if agent, ok = annotations[legacyAPMAnnotation]; !ok {
-			return ac, errors.New("missing annotation `co.elastic.apm/attach`")
-		}
+		return ac, fmt.Errorf("missing annotation `%s`", apmAnnotation)
 	}
 	// TODO: validate the config has a container field
 	config, ok := configs[agent]
