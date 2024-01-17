@@ -5,7 +5,8 @@ The attacher contains a webhook receiver and a helm chart that manages the recei
 
 ## Release State
 
-The software contained in this repo is considered a **Technical Preview**, and is not yet recommended for use in a production cluster.
+The Elastic APM Attacher for Kubernetes is GA for Java and Node.js.
+Support for .NET is still in **Technical Preview**, and is not yet recommended for use in a production cluster.
 
 ## Documentation
 
