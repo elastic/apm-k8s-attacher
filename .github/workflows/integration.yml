@@ -22,6 +22,9 @@ on:
 env:
   AGENT_TESTS: java nodejs
 
+permissions:
+  contents: read
+
 jobs:
   integration-test:
     runs-on: ubuntu-latest
