@@ -13,18 +13,15 @@ jobs:
     name: Release Docker Image
     runs-on: ubuntu-latest
     env:
-      DOCKER_REGISTRY: docker.elastic.co
-      DOCKER_SECRET: secret/observability-team/ci/docker-registry/prod
       DOCKER_IMAGE_NAME: observability/apm-attacher
     steps:
       - uses: actions/checkout@v4
-      - uses: elastic/apm-pipeline-library/.github/actions/docker-login@current
+      - name: Log in to the Elastic Container registry
+        uses: docker/login-action@0d4c9c5ea7693da7b068278f7b52bda2a190a446 # v3.2.0
         with:
-          registry: ${{ env.DOCKER_REGISTRY }}
-          secret: ${{ env.DOCKER_SECRET }}
-          url: ${{ secrets.VAULT_ADDR }}
-          roleId: ${{ secrets.VAULT_ROLE_ID }}
-          secretId: ${{ secrets.VAULT_SECRET_ID }}
+          registry: ${{ secrets.ELASTIC_DOCKER_REGISTRY }}
+          username: ${{ secrets.ELASTIC_DOCKER_USERNAME }}
+          password: ${{ secrets.ELASTIC_DOCKER_PASSWORD }}
       - name: Docker build, tag, and push
         run: |
           make .webhook REPO=${DOCKER_REGISTRY} NAME=${DOCKER_IMAGE_NAME} TAG=${{ github.ref_name }}
@@ -36,15 +33,12 @@ jobs:
     name: Release Helm Charts
     runs-on: ubuntu-latest
     steps:
-      - uses: elastic/apm-pipeline-library/.github/actions/buildkite@current
+      - uses: elastic/oblt-actions/buildkite/run@v1
         with:
-          vaultUrl: ${{ secrets.VAULT_ADDR }}
-          vaultRoleId: ${{ secrets.VAULT_ROLE_ID }}
-          vaultSecretId: ${{ secrets.VAULT_SECRET_ID }}
-          pipeline: oblt-publish-helm-charts
-          waitFor: true
-          printBuildLogs: true
-          buildEnvVars: |
+          pipeline: "oblt-publish-helm-charts"
+          token: ${{ secrets.BUILDKITE_TOKEN }}
+          wait-for: true
+          env-vars: |
             CHARTS_URL=https://github.com/${{ github.repository }}/archive/${{ github.ref_name }}.tar.gz
             HELM_REPO_ENV=prod
 
@@ -73,13 +67,11 @@ jobs:
         uses: elastic/apm-pipeline-library/.github/actions/check-dependent-jobs@current
         with:
           needs: ${{ toJSON(needs) }}
-      - uses: elastic/apm-pipeline-library/.github/actions/notify-build-status@current
+      - uses: elastic/oblt-actions/slack/notify-result@v1
         with:
           status: ${{ steps.check.outputs.status }}
-          vaultUrl: ${{ secrets.VAULT_ADDR }}
-          vaultRoleId: ${{ secrets.VAULT_ROLE_ID }}
-          vaultSecretId: ${{ secrets.VAULT_SECRET_ID }}
-          slackChannel: "#apm-agent-java"
+          bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          channel-id: "#apm-agent-java"
           message: |
             :ghost: [${{ github.repository }}] Release *${{ github.ref_name }}* has been triggered in GitHub Actions.
             Build: (<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|here>)
