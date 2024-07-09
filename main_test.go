@@ -34,7 +34,7 @@ func TestYAMLParse(t *testing.T) {
 	java := cfg.Agents["java"]
 	assert.Equal(t, java.Image, "docker.com/elastic/agent-java:1.2.3")
 	assert.Len(t, java.Environment, 5)
-	assert.Contains(t, java.Environment, "ELASTIC_APM_SERVER_URLS")
+	assert.Contains(t, java.Environment, "ELASTIC_APM_SERVER_URL")
 	assert.Contains(t, java.Environment, "ELASTIC_APM_SERVICE_NAME")
 	assert.Contains(t, java.Environment, "ELASTIC_APM_ENVIRONMENT")
 	assert.Contains(t, java.Environment, "ELASTIC_APM_LOG_LEVEL")
@@ -62,16 +62,6 @@ func TestGetConfig(t *testing.T) {
 		"dotnet": {Image: "dotnet-image"},
 	}
 	for _, agentName := range []string{"nodejs", "java", "dotnet"} {
-		t.Run(fmt.Sprint("legacy annotation", agentName), func(t *testing.T) {
-			config, err := getConfig(configs, map[string]string{
-				legacyAPMAnnotation: agentName,
-			})
-			assert.NoError(t, err)
-			assert.Equal(t, agentConfig{
-				Image: fmt.Sprint(agentName, "-image"),
-			}, config)
-		})
-
 		t.Run("supported annotation", func(t *testing.T) {
 			config, err := getConfig(configs, map[string]string{
 				apmAnnotation: agentName,

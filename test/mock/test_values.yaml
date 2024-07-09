@@ -1,15 +1,18 @@
+image:
+  repository: localhost:5001/apm-attacher
+  tag: "latest"
 apm:
   secret_token: YOUR_SECRET_TOKEN
-  namespaces: 
+  namespaces:
     - default
 webhookConfig:
   agents:
-    java: 
+    java:
       environment:
         ELASTIC_APM_SERVER_URL: "http://mock-apm-server-service:8027"
         ELASTIC_APM_ENVIRONMENT: "test"
         ELASTIC_APM_LOG_LEVEL: "DEBUG"
-    nodejs: 
+    nodejs:
       environment:
         ELASTIC_APM_SERVER_URL: "http://mock-apm-server-service:8027"
         ELASTIC_APM_ENVIRONMENT: "test"

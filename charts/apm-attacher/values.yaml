@@ -1,6 +1,6 @@
 image:
   repository: docker.elastic.co/observability/apm-attacher
-  tag: latest
+  tag: "v1.0.0"
   pullPolicy: Always
   pullSecrets: []
 
@@ -30,20 +30,17 @@ webhookConfig:
       artifact: "/usr/agent/elastic-apm-agent.jar"
       environment:
         JAVA_TOOL_OPTIONS: "-javaagent:/elastic/apm/agent/elastic-apm-agent.jar"
-        ELASTIC_APM_ACTIVATION_METHOD: "K8S_ATTACH"
     nodejs:
       image: docker.elastic.co/observability/apm-agent-nodejs:latest
       artifact: "/opt/nodejs/node_modules/elastic-apm-node"
       environment:
         NODE_OPTIONS: "-r /elastic/apm/agent/elastic-apm-node/start"
-        ELASTIC_APM_ACTIVATION_METHOD: "K8S"
     dotnet:
       image: docker.elastic.co/observability/apm-agent-dotnet:latest
       artifact: "/usr/agent/apm-dotnet-agent"
       environment:
         CORECLR_ENABLE_PROFILING: "1"
         CORECLR_PROFILER: "{FA65FE15-F085-4681-9B20-95E04F6C03CC}"
-        CORECLR_PROFILER_PATH: "/usr/agent/apm-dotnet-agent/libelastic_apm_profiler.so" 
+        CORECLR_PROFILER_PATH: "/usr/agent/apm-dotnet-agent/libelastic_apm_profiler.so"
         ELASTIC_APM_PROFILER_HOME: "/usr/agent/apm-dotnet-agent"
         ELASTIC_APM_PROFILER_INTEGRATIONS: "/usr/agent/apm-dotnet-agent/integrations.yml"
-        ELASTIC_APM_ACTIVATION_METHOD: "K8S"

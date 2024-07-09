@@ -1,3 +1,4 @@
+# This file isn't currently used, but can be nice for manual testing or demos.
 apiVersion: apps/v1
 kind: Deployment
 metadata:

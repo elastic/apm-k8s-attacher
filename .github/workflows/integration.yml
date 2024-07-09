@@ -1,6 +1,6 @@
 name: Agents Integration Testing
 
-on: 
+on:
   workflow_dispatch:
   push:
     branches:
@@ -18,7 +18,7 @@ on:
     paths-ignore:
       - '**.md'
       - '**.asciidoc'
-  
+
 env:
   AGENT_TESTS: dotnet java nodejs
   
@@ -31,15 +31,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Create kind cluster
-        uses: helm/kind-action@v1.4.0
-
-      - name: Create Local Registry
-        run: 
+      - name: Create Kind cluster and local Docker registry
+        run:
            sh test/mock/kind-with-registry.sh
 
       - name: Create Mock APM server image
-        run: 
+        run:
            cd test/mock;
            docker build -t mock-apm-server .;
            docker tag mock-apm-server localhost:5001/registry/mock-apm-server;
@@ -71,13 +68,15 @@ jobs:
         with:
           version: v3.11.2
 
-      - name: Install webhook
-        run: 
-          cd charts;
-          helm install webhook-chart apm-attacher/ --namespace=elastic-apm --create-namespace --values ../test/mock/test_values.yaml;
-          sleep 5;
-          export CHART_SERVICE=`kubectl get pods -A | grep 'webhook-chart' | awk -F ' ' '{print $2}'` ;
-          sh ../test/mock/wait_for_container_start.sh $CHART_SERVICE elastic-apm;
+      - name: Build and install webhook
+        run: |
+          make .webhook  # builds "apm/apm-attacher:latest" Docker image
+          docker tag apm/apm-attacher:latest localhost:5001/apm-attacher:latest
+          docker push localhost:5001/apm-attacher:latest
+          helm install webhook-chart ./charts/apm-attacher/ --namespace=elastic-apm --create-namespace --values test/mock/test_values.yaml
+          sleep 5
+          export POD_NAME=`kubectl get pods -A | grep 'webhook-chart' | awk -F ' ' '{print $2}'`
+          sh test/mock/wait_for_container_start.sh $POD_NAME
 
       - name: Start Test Images
         run: |

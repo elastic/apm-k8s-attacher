@@ -28,6 +28,7 @@ update-licenses:
 lint:
 	go run $(GO_CI_LINT) version
 	go run $(GO_CI_LINT) run
+	./scripts/lint-versions.sh
 
 .webhook: *.go Dockerfile
 	docker build --build-arg GO_VERSION=$(shell cat .go-version) -t $(REPO)/$(NAME):$(TAG) .
