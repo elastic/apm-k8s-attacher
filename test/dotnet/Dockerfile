@@ -14,4 +14,6 @@ RUN dotnet publish -c release -o /app --no-restore
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app ./
+ENV ELASTIC_APM_PROFILER_LOG_TARGETS=stdout;file
+ENV ELASTIC_APM_PROFILER_LOG=trace
 ENTRYPOINT ["dotnet", "dotnetapp.dll"]
