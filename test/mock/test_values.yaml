@@ -17,3 +17,8 @@ webhookConfig:
         ELASTIC_APM_SERVER_URL: "http://mock-apm-server-service:8027"
         ELASTIC_APM_ENVIRONMENT: "test"
         ELASTIC_APM_LOG_LEVEL: "trace"
+    dotnet:
+      environment:
+        ELASTIC_APM_SERVER_URL: "http://mock-apm-server-service:8027"
+        ELASTIC_APM_ENVIRONMENT: "test"
+        ELASTIC_APM_LOG_LEVEL: "trace"
