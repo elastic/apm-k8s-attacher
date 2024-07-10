@@ -41,6 +41,6 @@ webhookConfig:
       environment:
         CORECLR_ENABLE_PROFILING: "1"
         CORECLR_PROFILER: "{FA65FE15-F085-4681-9B20-95E04F6C03CC}"
-        CORECLR_PROFILER_PATH: "/elastic/apm/agent/apm-dotnet-agent/libelastic_apm_profiler.so"
-        ELASTIC_APM_PROFILER_HOME: "/elastic/apm/agent/apm-dotnet-agent"
-        ELASTIC_APM_PROFILER_INTEGRATIONS: "/elastic/apm/agent/apm-dotnet-agent/integrations.yml"
+        CORECLR_PROFILER_PATH: "/usr/agent/apm-dotnet-agent/libelastic_apm_profiler.so"
+        ELASTIC_APM_PROFILER_HOME: "/usr/agent/apm-dotnet-agent"
+        ELASTIC_APM_PROFILER_INTEGRATIONS: "/usr/agent/apm-dotnet-agent/integrations.yml"
