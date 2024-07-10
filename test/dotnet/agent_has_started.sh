@@ -7,6 +7,5 @@ then
   echo "APM Agent appears to have not been started"
   exit 1
 else
-  echo "Found APM agent in the kubctl logs"
   exit 0
 fi
