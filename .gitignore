@@ -3,6 +3,7 @@ main
 
 .webhook
 .vscode
+.idea
 bin
 
 html_docs
