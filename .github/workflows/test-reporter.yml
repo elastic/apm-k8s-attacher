@@ -8,10 +8,7 @@ on:
     types:
       - completed
 
-permissions:
-  contents: read
-  actions: write
-  checks: write
+permissions: write-all
 
 jobs:
   report:
