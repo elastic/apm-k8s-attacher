@@ -8,7 +8,12 @@ on:
     types:
       - completed
 
-permissions: write-all
+permissions:
+  statuses: write
+  checks: write
+  contents: write
+  pull-requests: write
+  actions: write
 
 jobs:
   report:
