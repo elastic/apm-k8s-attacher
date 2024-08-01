@@ -74,6 +74,7 @@ EOF
 6. Start the app and check the logs
     - `kubectl apply -f test-app.yaml`
     - `kubectl logs test-app`
+    - and look for a log line that shows the agent has started, eg `co.elastic.apm.agent.configuration.StartupInfo - Starting Elastic APM`
 7. Cleanup
     - `kubectl delete -f test-app.yaml`
     - `helm delete test-main -n elastic-apm`
