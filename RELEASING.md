@@ -32,7 +32,7 @@
 1. Clone (or update) the repo locally
     - `git clone https://github.com/elastic/apm-k8s-attacher.git`
 2. `cd apm-k8s-attacher`
-3. Create the custom values ymal file - replacing the secret token and url with valid values for a server is better, buy even with these dummy values testing still works, just the agent won't connect to a server
+3. Create the custom values ymal file - replacing the secret token and url with valid values for a server is better, but even with these dummy values testing still works, just the agent won't connect to a server
 ```
 cat > custom.yaml <<EOF
 apm:
