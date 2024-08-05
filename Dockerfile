@@ -1,4 +1,4 @@
-ARG GO_VERSION=1.19
+ARG GO_VERSION=1.22
 FROM golang:${GO_VERSION}-alpine AS build
 RUN apk update
 RUN apk upgrade

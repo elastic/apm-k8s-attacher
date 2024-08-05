@@ -19,11 +19,11 @@ Third party libraries used by the Elastic APM Kubernetes Webhook receiver.
 
 --------------------------------------------------------------------------------
 Module  : github.com/go-logr/logr
-Version : v1.2.3
-Time    : 2022-03-17T09:17:06Z
+Version : v1.4.1
+Time    : 2023-12-21T15:57:58Z
 Licence : Apache-2.0
 
-Contents of probable licence file $GOMODCACHE/github.com/go-logr/logr@v1.2.3/LICENSE:
+Contents of probable licence file $GOMODCACHE/github.com/go-logr/logr@v1.4.1/LICENSE:
 
                                  Apache License
                            Version 2.0, January 2004
@@ -275,11 +275,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 --------------------------------------------------------------------------------
 Module  : github.com/google/gofuzz
-Version : v1.1.0
-Time    : 2019-10-28T17:48:53Z
+Version : v1.2.0
+Time    : 2020-08-04T22:43:24Z
 Licence : Apache-2.0
 
-Contents of probable licence file $GOMODCACHE/github.com/google/gofuzz@v1.1.0/LICENSE:
+Contents of probable licence file $GOMODCACHE/github.com/google/gofuzz@v1.2.0/LICENSE:
 
 
                                  Apache License
@@ -940,11 +940,11 @@ Contents of probable licence file $GOMODCACHE/github.com/modern-go/reflect2@v1.0
 
 --------------------------------------------------------------------------------
 Module  : golang.org/x/net
-Version : v0.17.0
-Time    : 2023-10-10T15:45:19Z
+Version : v0.23.0
+Time    : 2024-04-03T17:30:20Z
 Licence : BSD-3-Clause
 
-Contents of probable licence file $GOMODCACHE/golang.org/x/net@v0.17.0/LICENSE:
+Contents of probable licence file $GOMODCACHE/golang.org/x/net@v0.23.0/LICENSE:
 
 Copyright (c) 2009 The Go Authors. All rights reserved.
 
@@ -977,11 +977,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 --------------------------------------------------------------------------------
 Module  : golang.org/x/text
-Version : v0.13.0
-Time    : 2023-08-28T17:26:32Z
+Version : v0.14.0
+Time    : 2023-10-11T21:58:48Z
 Licence : BSD-3-Clause
 
-Contents of probable licence file $GOMODCACHE/golang.org/x/text@v0.13.0/LICENSE:
+Contents of probable licence file $GOMODCACHE/golang.org/x/text@v0.14.0/LICENSE:
 
 Copyright (c) 2009 The Go Authors. All rights reserved.
 
@@ -1323,11 +1323,11 @@ limitations under the License.
 
 --------------------------------------------------------------------------------
 Module  : k8s.io/api
-Version : v0.27.4
-Time    : 2023-07-19T22:25:29Z
+Version : v0.30.3
+Time    : 2024-07-17T18:38:18Z
 Licence : Apache-2.0
 
-Contents of probable licence file $GOMODCACHE/k8s.io/api@v0.27.4/LICENSE:
+Contents of probable licence file $GOMODCACHE/k8s.io/api@v0.30.3/LICENSE:
 
 
                                  Apache License
@@ -1535,11 +1535,11 @@ Contents of probable licence file $GOMODCACHE/k8s.io/api@v0.27.4/LICENSE:
 
 --------------------------------------------------------------------------------
 Module  : k8s.io/apimachinery
-Version : v0.27.4
-Time    : 2023-07-16T20:19:07Z
+Version : v0.30.3
+Time    : 2024-04-05T20:08:23Z
 Licence : Apache-2.0
 
-Contents of probable licence file $GOMODCACHE/k8s.io/apimachinery@v0.27.4/LICENSE:
+Contents of probable licence file $GOMODCACHE/k8s.io/apimachinery@v0.30.3/LICENSE:
 
 
                                  Apache License
@@ -1747,11 +1747,11 @@ Contents of probable licence file $GOMODCACHE/k8s.io/apimachinery@v0.27.4/LICENS
 
 --------------------------------------------------------------------------------
 Module  : k8s.io/klog/v2
-Version : v2.90.1
-Time    : 2023-03-01T14:21:18Z
+Version : v2.120.1
+Time    : 2024-01-18T14:38:33Z
 Licence : Apache-2.0
 
-Contents of probable licence file $GOMODCACHE/k8s.io/klog/v2@v2.90.1/LICENSE:
+Contents of probable licence file $GOMODCACHE/k8s.io/klog/v2@v2.120.1/LICENSE:
 
 Apache License
 Version 2.0, January 2004
@@ -1948,11 +1948,11 @@ third-party archives.
 
 --------------------------------------------------------------------------------
 Module  : k8s.io/utils
-Version : v0.0.0-20230209194617-a36077c30491
-Time    : 2023-02-09T19:46:17Z
+Version : v0.0.0-20230726121419-3b25d923346b
+Time    : 2023-07-26T12:14:19Z
 Licence : Apache-2.0
 
-Contents of probable licence file $GOMODCACHE/k8s.io/utils@v0.0.0-20230209194617-a36077c30491/LICENSE:
+Contents of probable licence file $GOMODCACHE/k8s.io/utils@v0.0.0-20230726121419-3b25d923346b/LICENSE:
 
 
                                  Apache License
@@ -2408,11 +2408,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 --------------------------------------------------------------------------------
 Module  : sigs.k8s.io/structured-merge-diff/v4
-Version : v4.2.3
-Time    : 2022-08-02T16:37:45Z
+Version : v4.4.1
+Time    : 2023-10-27T03:34:02Z
 Licence : Apache-2.0
 
-Contents of probable licence file $GOMODCACHE/sigs.k8s.io/structured-merge-diff/v4@v4.2.3/LICENSE:
+Contents of probable licence file $GOMODCACHE/sigs.k8s.io/structured-merge-diff/v4@v4.4.1/LICENSE:
 
                                  Apache License
                            Version 2.0, January 2004
