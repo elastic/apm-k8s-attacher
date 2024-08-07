@@ -72,6 +72,4 @@ jobs:
           status: ${{ steps.check.outputs.status }}
           bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
           channel-id: "#apm-agent-java"
-          message: |
-            :ghost: [${{ github.repository }}] Release *${{ github.ref_name }}* has been triggered in GitHub Actions.
-            Build: (<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|here>)
+          message: ':ghost: [${{ github.repository }}] Release *${{ github.ref_name }}* has been triggered in GitHub Actions. Build: (<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|here>)'
