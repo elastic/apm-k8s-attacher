@@ -187,6 +187,7 @@ func createVolumePatch(createArray bool) patchOperation {
 func createInitContainerPatch(config agentConfig, createArray bool) (patchOperation, error) {
 	bp := filepath.Base(config.Image)
 	name := strings.Split(bp, ":")
+	allowPrivilegeEscalation := false
 	agentInitContainer := corev1.Container{
 		Name:         name[0],
 		Image:        config.Image,
@@ -194,6 +195,12 @@ func createInitContainerPatch(config agentConfig, createArray bool) (patchOperat
 		// TODO: should this be a default, and then users can modify it
 		// *if needed*?
 		Command: []string{"cp", "-v", "-r", config.ArtifactPath, mountPath},
+		SecurityContext: &corev1.SecurityContext{
+			AllowPrivilegeEscalation: &allowPrivilegeEscalation,
+			Capabilities: &corev1.Capabilities{
+				Drop: []corev1.Capability{"ALL"},
+			},
+		},
 	}
 
 	if errs := validation.IsDNS1123Label(agentInitContainer.Name); len(errs) != 0 {
