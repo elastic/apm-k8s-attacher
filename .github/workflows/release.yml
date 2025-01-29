@@ -17,17 +17,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Log in to the Elastic Container registry
-        uses: docker/login-action@0d4c9c5ea7693da7b068278f7b52bda2a190a446 # v3.2.0
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
           registry: ${{ secrets.ELASTIC_DOCKER_REGISTRY }}
           username: ${{ secrets.ELASTIC_DOCKER_USERNAME }}
           password: ${{ secrets.ELASTIC_DOCKER_PASSWORD }}
       - name: Docker build, tag, and push
         run: |
-          make .webhook REPO=${DOCKER_REGISTRY} NAME=${DOCKER_IMAGE_NAME} TAG=${{ github.ref_name }}
-          docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${{ github.ref_name }}
-          docker tag ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${{ github.ref_name }} ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:latest
-          docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:latest
+          make .webhook REPO=${{ secrets.ELASTIC_DOCKER_REGISTRY }} NAME=${DOCKER_IMAGE_NAME} TAG=${{ github.ref_name }}
+          docker push ${{ secrets.ELASTIC_DOCKER_REGISTRY }}/${DOCKER_IMAGE_NAME}:${{ github.ref_name }}
+          docker tag ${{ secrets.ELASTIC_DOCKER_REGISTRY }}/${DOCKER_IMAGE_NAME}:${{ github.ref_name }} ${{ secrets.ELASTIC_DOCKER_REGISTRY }}/${DOCKER_IMAGE_NAME}:latest
+          docker push ${{ secrets.ELASTIC_DOCKER_REGISTRY }}/${DOCKER_IMAGE_NAME}:latest
 
   release-helm-charts:
     name: Release Helm Charts
@@ -64,14 +64,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - id: check
-        uses: elastic/apm-pipeline-library/.github/actions/check-dependent-jobs@current
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
         with:
-          needs: ${{ toJSON(needs) }}
+          jobs: ${{ toJSON(needs) }}
       - uses: elastic/oblt-actions/slack/notify-result@v1
         with:
           status: ${{ steps.check.outputs.status }}
           bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
           channel-id: "#apm-agent-java"
-          message: |
-            :ghost: [${{ github.repository }}] Release *${{ github.ref_name }}* has been triggered in GitHub Actions.
-            Build: (<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|here>)
+          message: ':ghost: [${{ github.repository }}] Release *${{ github.ref_name }}* has been triggered in GitHub Actions. Build: (<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|here>)'
