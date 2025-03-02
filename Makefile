@@ -31,7 +31,7 @@ lint:
 	./scripts/lint-versions.sh
 
 .webhook: *.go Dockerfile
-	docker build --build-arg GO_VERSION=$(shell cat .go-version) -t $(REPO)/$(NAME):$(TAG) .
+	docker build --build-arg GO_VERSION=$(shell grep '^go' go.mod | cut -d' ' -f2) -t $(REPO)/$(NAME):$(TAG) .
 	@touch $@
 
 bin:
