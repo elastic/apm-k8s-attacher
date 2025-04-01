@@ -1,6 +1,6 @@
 image:
   repository: docker.elastic.co/observability/apm-attacher
-  tag: "v1.1.1"
+  tag: "v1.1.3"
   pullPolicy: Always
   pullSecrets: []
 

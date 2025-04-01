@@ -1,7 +1,7 @@
 apiVersion: v2
 name: apm-attacher
 type: application
-version: "1.1.1"
+version: "1.1.3"
 description: A Helm chart installing the Elastic APM Kubernetes Attacher.
 sources:
   - https://github.com/elastic/apm-k8s-attacher
