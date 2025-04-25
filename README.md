@@ -1,3 +1,8 @@
+> [!IMPORTANT]
+> The APM Attacher for Kubernetes is in maintenance mode. Only prioritized bug fixes will be applied. The OpenTelemetry Operator fully replaces the Attacher and is actively developed by the community.
+> 
+> To migrate, see [Migrating from the Elastic APM Attacher for Kubernetes](https://elastic.github.io/opentelemetry/use-cases/kubernetes/instrumenting-applications.html#migrating-from-the-elastic-apm-attacher-for-kubernetes).
+
 # Elastic APM Attacher for Kubernetes
 
 The Elastic APM attacher for Kubernetes simplifies the instrumentation and configuration of your application pods.
