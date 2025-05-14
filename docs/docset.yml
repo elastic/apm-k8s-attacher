@@ -1,4 +1,6 @@
 project: 'APM Attacher for Kubernetes'
+products:
+  - id: apm
 cross_links:
   - apm-agent-dotnet
   - apm-agent-java
