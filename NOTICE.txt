@@ -962,11 +962,11 @@ limitations under the License.
 
 --------------------------------------------------------------------------------
 Module  : k8s.io/api
-Version : v0.33.0
-Time    : 2025-04-23T19:23:29Z
+Version : v0.33.3
+Time    : 2025-07-16T01:18:25Z
 Licence : Apache-2.0
 
-Contents of probable licence file $GOMODCACHE/k8s.io/api@v0.33.0/LICENSE:
+Contents of probable licence file $GOMODCACHE/k8s.io/api@v0.33.3/LICENSE:
 
 
                                  Apache License
@@ -1174,11 +1174,11 @@ Contents of probable licence file $GOMODCACHE/k8s.io/api@v0.33.0/LICENSE:
 
 --------------------------------------------------------------------------------
 Module  : k8s.io/apimachinery
-Version : v0.33.0
-Time    : 2025-04-11T02:07:58Z
+Version : v0.33.3
+Time    : 2025-05-13T12:05:15Z
 Licence : Apache-2.0
 
-Contents of probable licence file $GOMODCACHE/k8s.io/apimachinery@v0.33.0/LICENSE:
+Contents of probable licence file $GOMODCACHE/k8s.io/apimachinery@v0.33.3/LICENSE:
 
 
                                  Apache License
