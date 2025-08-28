@@ -43,7 +43,7 @@ webhookConfig:
   agents:
     java:
       environment:
-        ELASTIC_APM_SERVER_URL: "https://apm.example.com:8200"
+        ELASTIC_APM_SERVER_URL: "<YOUR_APM_SERVER_URL>:<PORT>"
         ELASTIC_APM_ENVIRONMENT: "prod"
         ELASTIC_APM_LOG_LEVEL: "info"
 EOF

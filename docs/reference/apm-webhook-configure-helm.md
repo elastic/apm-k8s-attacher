@@ -20,7 +20,7 @@ webhookConfig:
   agents:
     java: <3>
       environment:
-        ELASTIC_APM_SERVER_URL: "https://apm.example.com:8200" <4>
+        ELASTIC_APM_SERVER_URL: "<YOUR_APM_SERVER_URL>:<PORT>" <4>
         ELASTIC_APM_ENVIRONMENT: "prod"
         ELASTIC_APM_LOG_LEVEL: "info"
 ```
@@ -44,7 +44,7 @@ webhookConfig:
   agents:
     nodejs: <3>
       environment:
-        ELASTIC_APM_SERVER_URL: "https://apm.example.com:8200" <4>
+        ELASTIC_APM_SERVER_URL: "<YOUR_APM_SERVER_URL>:<PORT>" <4>
         ELASTIC_APM_ENVIRONMENT: "prod"
         ELASTIC_APM_LOG_LEVEL: "info"
 ```
