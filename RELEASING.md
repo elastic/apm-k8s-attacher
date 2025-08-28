@@ -36,20 +36,20 @@
 ```
 cat > custom.yaml <<EOF
 apm:
-  secret_token: SuP3RT0K3N 
-  namespaces: 
+  secret_token: SuP3RT0K3N
+  namespaces:
     - default
 webhookConfig:
   agents:
-    java: 
+    java:
       environment:
-        ELASTIC_APM_SERVER_URL: "https://apm-example.com:8200" 
+        ELASTIC_APM_SERVER_URL: "<YOUR_APM_SERVER_URL>:<PORT>"
         ELASTIC_APM_ENVIRONMENT: "prod"
         ELASTIC_APM_LOG_LEVEL: "info"
 EOF
 ```
 4. Install the attacher - note the namespace can be any namespace but can't be the default nor a namespace where pods will be tested
-    - `helm install test-main charts/apm-attacher --values custom.yaml --namespace=elastic-apm --create-namespace` 
+    - `helm install test-main charts/apm-attacher --values custom.yaml --namespace=elastic-apm --create-namespace`
 5. Create a pod to test - the example here is a Java pod which uses a known image that holds a testing app
 ```
 cat > test-app.yaml <<EOF
@@ -58,7 +58,7 @@ kind: Pod
 metadata:
   name: test-app
   annotations:
-    co.elastic.apm/attach: java 
+    co.elastic.apm/attach: java
   labels:
     app: test-app
 spec:
@@ -66,7 +66,7 @@ spec:
     - image: docker.elastic.co/demos/apm/k8s-webhook-test
       imagePullPolicy: Always
       name: test-app
-      env: 
+      env:
       - name: ELASTIC_APM_TRACE_METHODS
         value: "test.Testing#methodB"
 EOF
