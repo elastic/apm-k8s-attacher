@@ -2,6 +2,14 @@
 mapped_pages:
   - https://www.elastic.co/guide/en/apm/attacher/current/apm-attacher.html
   - https://www.elastic.co/guide/en/apm/attacher/current/index.html
+applies_to:
+  stack:
+  serverless:
+    observability:
+products:
+  - id: cloud-serverless
+  - id: observability
+  - id: apm
 ---
 
 :::{important}

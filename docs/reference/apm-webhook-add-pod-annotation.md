@@ -1,6 +1,14 @@
 ---
 mapped_pages:
   - https://www.elastic.co/guide/en/apm/attacher/current/apm-webhook-add-pod-annotation.html
+applies_to:
+  stack:
+  serverless:
+    observability:
+products:
+  - id: cloud-serverless
+  - id: observability
+  - id: apm
 ---
 
 # Add a pod template annotation to each pod you want to auto-instrument [apm-webhook-add-pod-annotation]

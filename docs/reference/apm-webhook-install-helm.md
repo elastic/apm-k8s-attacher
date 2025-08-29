@@ -1,6 +1,14 @@
 ---
 mapped_pages:
   - https://www.elastic.co/guide/en/apm/attacher/current/apm-webhook-install-helm.html
+applies_to:
+  stack:
+  serverless:
+    observability:
+products:
+  - id: cloud-serverless
+  - id: observability
+  - id: apm
 ---
 
 # Install the webhook with Helm [apm-webhook-install-helm]

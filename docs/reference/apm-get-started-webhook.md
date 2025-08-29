@@ -1,6 +1,14 @@
 ---
 mapped_pages:
   - https://www.elastic.co/guide/en/apm/attacher/current/apm-get-started-webhook.html
+applies_to:
+  stack:
+  serverless:
+    observability:
+products:
+  - id: cloud-serverless
+  - id: observability
+  - id: apm
 ---
 
 # Instrument and configure pods [apm-get-started-webhook]
