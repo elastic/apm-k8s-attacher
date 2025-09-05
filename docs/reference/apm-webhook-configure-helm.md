@@ -1,6 +1,10 @@
 ---
 mapped_pages:
   - https://www.elastic.co/guide/en/apm/attacher/current/apm-webhook-configure-helm.html
+applies_to:
+  stack:
+  serverless:
+    observability:
 ---
 
 # Configure the webhook with a Helm values file [apm-webhook-configure-helm]
