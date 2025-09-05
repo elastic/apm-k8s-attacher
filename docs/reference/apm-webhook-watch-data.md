@@ -5,10 +5,6 @@ applies_to:
   stack:
   serverless:
     observability:
-products:
-  - id: cloud-serverless
-  - id: observability
-  - id: apm
 ---
 
 # Watch data flow into the Elastic Stack [apm-webhook-watch-data]

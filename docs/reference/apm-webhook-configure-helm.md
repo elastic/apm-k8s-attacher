@@ -5,10 +5,6 @@ applies_to:
   stack:
   serverless:
     observability:
-products:
-  - id: cloud-serverless
-  - id: observability
-  - id: apm
 ---
 
 # Configure the webhook with a Helm values file [apm-webhook-configure-helm]
