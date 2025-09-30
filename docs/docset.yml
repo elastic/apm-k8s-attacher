@@ -5,6 +5,7 @@ cross_links:
   - apm-agent-dotnet
   - apm-agent-java
   - apm-agent-nodejs
+  - docs-content
   - opentelemetry
 toc:
   - toc: reference
