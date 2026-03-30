@@ -29,7 +29,7 @@ The webhook receiver modifies pods so they are automatically instrumented by an 
 
 * [Java agent](apm-agent-java://reference/index.md)
 * [Node.js agent](apm-agent-nodejs://reference/index.md)
-* [preview] [.NET agent](apm-agent-dotnet://reference/index.md)
+* {applies_to}`product: preview` [.NET agent](apm-agent-dotnet://reference/index.md)
 
 The webhook receiver is invoked on pod creation. After receiving the object definition from the Kubernetes API server, it looks through the pod spec for a specific, user-supplied annotation. If found, the pod spec is mutated according to the webhook receiver’s configuration. This mutated object is then returned to the Kubernetes API server which uses it as the source of truth for the object.
 
