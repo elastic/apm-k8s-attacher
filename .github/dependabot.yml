@@ -1,0 +1,22 @@
+version: 2
+updates:
+  # Go dependencies
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    groups:
+      k8s:
+        patterns:
+        - "k8s.io/*"
+  # GitHub actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "22:00"
+    groups:
+      github-actions:
+        patterns:
+          - "*"

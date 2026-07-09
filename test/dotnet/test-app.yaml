@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dotnet-test-app
+  annotations:
+    co.elastic.apm/attach: dotnet
+  labels:
+    app: dotnet-test-app
+spec:
+  containers:
+    - image: localhost:5001/registry/dotnet-test-app
+      imagePullPolicy: Always
+      name: dotnet-test-app

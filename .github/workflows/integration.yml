@@ -20,17 +20,16 @@ on:
       - '**.asciidoc'
 
 env:
-  AGENT_TESTS: java nodejs
+  AGENT_TESTS: dotnet java nodejs
 
 permissions:
   contents: read
-
 jobs:
   integration-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -67,7 +66,7 @@ jobs:
            done
 
       - name: Set up Helm
-        uses: azure/setup-helm@v3
+        uses: azure/setup-helm@v5
         with:
           version: v3.11.2
 

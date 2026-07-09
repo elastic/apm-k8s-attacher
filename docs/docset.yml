@@ -1,0 +1,13 @@
+project: 'APM Attacher for Kubernetes'
+products:
+  - id: apm
+cross_links:
+  - apm-agent-dotnet
+  - apm-agent-java
+  - apm-agent-nodejs
+  - docs-content
+  - opentelemetry
+toc:
+  - toc: reference
+subs:
+  stack:   "Elastic Stack"

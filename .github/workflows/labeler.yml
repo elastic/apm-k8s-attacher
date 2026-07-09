@@ -7,13 +7,11 @@ on:
 
 permissions:
   contents: read
+  issues: write
+  pull-requests: write
 
 jobs:
   triage:
-    permissions:
-      contents: read
-      issues: write
-      pull-requests: write
     runs-on: ubuntu-latest
     steps:
     - uses: AlexanderWert/issue-labeler@v2.3
