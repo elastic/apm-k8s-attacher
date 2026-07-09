@@ -21,7 +21,9 @@ on:
 
 env:
   AGENT_TESTS: dotnet java nodejs
-  
+
+permissions:
+  contents: read
 jobs:
   integration-test:
     runs-on: ubuntu-latest
