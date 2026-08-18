@@ -790,11 +790,11 @@ SOFTWARE.
 
 --------------------------------------------------------------------------------
 Module  : golang.org/x/net
-Version : v0.38.0
-Time    : 2025-03-27T19:51:24Z
+Version : v0.53.0
+Time    : 2026-04-09T19:17:33Z
 Licence : BSD-3-Clause
 
-Contents of probable licence file $GOMODCACHE/golang.org/x/net@v0.38.0/LICENSE:
+Contents of probable licence file $GOMODCACHE/golang.org/x/net@v0.53.0/LICENSE:
 
 Copyright 2009 The Go Authors.
 
@@ -827,11 +827,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 --------------------------------------------------------------------------------
 Module  : golang.org/x/text
-Version : v0.23.0
-Time    : 2025-03-05T15:52:56Z
+Version : v0.36.0
+Time    : 2026-04-09T11:43:05Z
 Licence : BSD-3-Clause
 
-Contents of probable licence file $GOMODCACHE/golang.org/x/text@v0.23.0/LICENSE:
+Contents of probable licence file $GOMODCACHE/golang.org/x/text@v0.36.0/LICENSE:
 
 Copyright 2009 The Go Authors.
 
