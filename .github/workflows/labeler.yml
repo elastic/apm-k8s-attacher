@@ -1,3 +1,6 @@
+# pull_request_target is kept on purpose: it is the only trigger that gives PRs from forks a
+# token that can write labels. No PR code is checked out or run; the labeler config is read
+# through the API at the base commit (GITHUB_SHA), not from the PR.
 name: "Issue Labeler"
 on:
   issues:
@@ -5,8 +8,7 @@ on:
   pull_request_target:
     types: [opened]
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   triage:
@@ -16,8 +18,8 @@ jobs:
       pull-requests: write
     runs-on: ubuntu-latest
     steps:
-    - uses: AlexanderWert/issue-labeler@v2.3
+    - uses: AlexanderWert/issue-labeler@32be4a3c3d8f009c2741af471994337c34b4cb6f # v2.3
       with:
-        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
         configuration-path: .github/labeler-config.yml
         enable-versioned-regex: 0
